@@ -1,0 +1,93 @@
+<div class="config-page">
+  <div class="config-header">
+    <h2>⚙️ Configuración del negocio</h2>
+  </div>
+
+  <!-- Mensaje feedback -->
+  <div *ngIf="mensaje" class="alerta exito">{{ mensaje }}</div>
+  <div *ngIf="mensajeError" class="alerta error">{{ mensajeError }}</div>
+
+  <!-- Datos del negocio -->
+  <div class="seccion">
+    <h3>Datos del negocio</h3>
+    <div class="campo">
+      <label>Nombre del negocio</label>
+      <input type="text" [(ngModel)]="nombreNegocio" placeholder="Ej: Lavadero El Brillo" />
+    </div>
+    <div class="campo">
+      <label>Descripción</label>
+      <input type="text" [(ngModel)]="descripcion" placeholder="Ej: Lavadero de autos premium" />
+    </div>
+    <button class="btn-primary" (click)="guardarConfiguracion()" [disabled]="guardando">
+      {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+    </button>
+  </div>
+
+  <!-- Horarios de atención -->
+  <div class="seccion">
+    <div class="seccion-header">
+      <h3>Horarios de atención</h3>
+      <button class="btn-secondary" (click)="mostrarFormHorario = !mostrarFormHorario">
+        {{ mostrarFormHorario ? 'Cancelar' : '+ Agregar horario' }}
+      </button>
+    </div>
+
+    <!-- Formulario nuevo horario -->
+    <div *ngIf="mostrarFormHorario" class="form-nuevo-horario">
+      <div class="fila">
+        <div class="campo">
+          <label>Día</label>
+          <select [(ngModel)]="nuevoHorario.dia_semana">
+            <option *ngFor="let dia of diasSemana; let i = index" [value]="i">{{ dia }}</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Desde</label>
+          <input type="time" [(ngModel)]="nuevoHorario.hora_inicio" />
+        </div>
+        <div class="campo">
+          <label>Hasta</label>
+          <input type="time" [(ngModel)]="nuevoHorario.hora_fin" />
+        </div>
+        <button class="btn-primary" (click)="agregarHorario()">Agregar</button>
+      </div>
+    </div>
+
+    <!-- Lista horarios -->
+    <table class="tabla-horarios">
+      <thead>
+        <tr>
+          <th>Día</th>
+          <th>Desde</th>
+          <th>Hasta</th>
+          <th>Activo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let horario of horarios" [class.inactivo]="!horario.activo">
+          <td>{{ getNombreDia(horario.dia_semana) }}</td>
+          <td>
+            <input type="time" [(ngModel)]="horario.hora_inicio" class="input-hora" />
+          </td>
+          <td>
+            <input type="time" [(ngModel)]="horario.hora_fin" class="input-hora" />
+          </td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" [checked]="horario.activo" (change)="toggleHorario(horario)" />
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td class="acciones">
+            <button class="btn-save" (click)="guardarHorario(horario)" title="Guardar">💾</button>
+            <button class="btn-delete" (click)="eliminarHorario(horario.id)" title="Eliminar">🗑️</button>
+          </td>
+        </tr>
+        <tr *ngIf="horarios.length === 0">
+          <td colspan="5" class="vacio">No hay horarios configurados</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

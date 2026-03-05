@@ -51,4 +51,65 @@ export class SupabaseService {
     if (error) throw error;
     return data;
   }
+
+  // CONFIGURACION
+  async getConfiguracion() {
+    const { data, error } = await this.supabase
+      .from('configuracion')
+      .select('*');
+    if (error) throw error;
+    return data;
+  }
+
+  async updateConfiguracion(clave: string, valor: string) {
+    const { error } = await this.supabase
+      .from('configuracion')
+      .update({ valor })
+      .eq('clave', clave);
+    if (error) throw error;
+  }
+
+  async upsertConfiguracion(clave: string, valor: string) {
+    const { error } = await this.supabase
+      .from('configuracion')
+      .upsert({ clave, valor }, { onConflict: 'clave' });
+    if (error) throw error;
+  }
+
+  // HORARIOS
+  async getHorarios() {
+    const { data, error } = await this.supabase
+      .from('horarios_atencion')
+      .select('*')
+      .order('dia_semana', { ascending: true })
+      .order('hora_inicio', { ascending: true });
+    if (error) throw error;
+    return data;
+  }
+
+  async updateHorario(id: number, horario: any) {
+    const { error } = await this.supabase
+      .from('horarios_atencion')
+      .update(horario)
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async createHorario(horario: any) {
+    const { data, error } = await this.supabase
+      .from('horarios_atencion')
+      .insert(horario)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async deleteHorario(id: number) {
+    const { error } = await this.supabase
+      .from('horarios_atencion')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  }
 }

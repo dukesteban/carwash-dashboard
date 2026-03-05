@@ -1,1 +1,64 @@
-<router-outlet />
+<nav class="navbar">
+  <div class="navbar-brand">🚗 CarWash</div>
+  <div class="navbar-links">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📋 Turnos</a>
+    <a routerLink="/configuracion" routerLinkActive="active">⚙️ Configuración</a>
+  </div>
+</nav>
+
+<main class="main-content">
+  <router-outlet />
+</main>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; }
+
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 56px;
+    background: #1e293b;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .navbar-brand {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .navbar-links {
+    display: flex;
+    gap: 8px;
+  }
+
+  .navbar-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .navbar-links a:hover {
+    color: white;
+    background: #334155;
+  }
+
+  .navbar-links a.active {
+    color: white;
+    background: #3b82f6;
+  }
+
+  .main-content {
+    min-height: calc(100vh - 56px);
+  }
+</style>
