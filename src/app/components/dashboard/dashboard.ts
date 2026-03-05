@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SupabaseService } from '../../services/supabase';
 
@@ -16,27 +16,30 @@ export class DashboardComponent implements OnInit {
   totalClientes = 0;
   turnosPendientes = 0;
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService, private cdr: ChangeDetectorRef) {}
 
   async ngOnInit() {
     await this.cargarDatos();
+    this.cdr.detectChanges();
   }
 
   async cargarDatos() {
     this.turnosHoy = await this.supabase.getTurnosHoy();
     this.todosTurnos = await this.supabase.getTurnos();
     const stats = await this.supabase.getEstadisticas();
-    
+
     this.totalIngresos = stats
-      .filter(t => t.estado === 'confirmado')
-      .reduce((sum, t) => sum + (t.precio || 0), 0);
-    
+      .filter((t: any) => t.estado === 'confirmado')
+      .reduce((sum: number, t: any) => sum + (t.precio || 0), 0);
+
     this.totalClientes = new Set(
-      this.todosTurnos.map(t => t.cliente_telefono)
+      this.todosTurnos.map((t: any) => t.cliente_telefono)
     ).size;
-    
+
     this.turnosPendientes = this.todosTurnos
-      .filter(t => t.estado === 'pendiente').length;
+      .filter((t: any) => t.estado === 'pendiente').length;
+
+    this.cdr.detectChanges();
   }
 
   async cambiarEstado(id: number, estado: string) {

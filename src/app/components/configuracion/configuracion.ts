@@ -1,9 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
-
-const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
 @Component({
   selector: 'app-configuracion',
@@ -19,21 +17,15 @@ export class ConfiguracionComponent implements OnInit {
   guardando = false;
   mensaje = '';
   mensajeError = '';
-  diasSemana = DIAS_SEMANA;
-
-  nuevoHorario = {
-    dia_semana: 1,
-    hora_inicio: '08:00',
-    hora_fin: '12:00',
-    activo: true
-  };
-
+  diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  nuevoHorario = { dia_semana: 1, hora_inicio: '08:00', hora_fin: '12:00', activo: true };
   mostrarFormHorario = false;
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService, private cdr: ChangeDetectorRef) {}
 
   async ngOnInit() {
     await this.cargarDatos();
+    this.cdr.detectChanges();
   }
 
   async cargarDatos() {
@@ -41,8 +33,7 @@ export class ConfiguracionComponent implements OnInit {
     this.nombreNegocio = config.find((c: any) => c.clave === 'nombre_negocio')?.valor || '';
     this.descripcion = config.find((c: any) => c.clave === 'descripcion')?.valor || '';
     this.horarios = await this.supabase.getHorarios();
-    this.horarios = await this.supabase.getHorarios();
-    console.log('horarios:', this.horarios);
+    this.cdr.detectChanges();
   }
 
   async guardarConfiguracion() {
@@ -53,17 +44,19 @@ export class ConfiguracionComponent implements OnInit {
       await this.supabase.upsertConfiguracion('nombre_negocio', this.nombreNegocio);
       await this.supabase.upsertConfiguracion('descripcion', this.descripcion);
       this.mensaje = '✅ Configuración guardada correctamente.';
+      setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges(); }, 3000);
     } catch (e) {
       console.error(e);
-      this.mensajeError = '❌ Error al guardar la configuración.';
-    } finally {
-      this.guardando = false;
+      this.mensajeError = '❌ Error al guardar.';
     }
+    this.guardando = false;
+    this.cdr.detectChanges();
   }
 
   async toggleHorario(horario: any) {
     horario.activo = !horario.activo;
     await this.supabase.updateHorario(horario.id, { activo: horario.activo });
+    this.cdr.detectChanges();
   }
 
   async guardarHorario(horario: any) {
@@ -73,12 +66,14 @@ export class ConfiguracionComponent implements OnInit {
       activo: horario.activo
     });
     this.mensaje = '✅ Horario actualizado.';
+    this.cdr.detectChanges();
   }
 
   async eliminarHorario(id: number) {
     if (!confirm('¿Eliminar este horario?')) return;
     await this.supabase.deleteHorario(id);
     this.horarios = this.horarios.filter(h => h.id !== id);
+    this.cdr.detectChanges();
   }
 
   async agregarHorario() {
@@ -87,9 +82,21 @@ export class ConfiguracionComponent implements OnInit {
     this.mostrarFormHorario = false;
     this.nuevoHorario = { dia_semana: 1, hora_inicio: '08:00', hora_fin: '12:00', activo: true };
     this.mensaje = '✅ Horario agregado.';
+    this.cdr.detectChanges();
+  }
+  /*
+  getNombreDia(num: number): string {
+    return this.diasSemana[num] || '';
+  }
+  */
+  formatearHora(hora: string): string {
+    return hora ? hora.slice(0, 5) : '';
   }
 
-  getNombreDia(num: number): string {
-    return DIAS_SEMANA[num] || '';
+  getNombreDiaConTurno(horario: any): string {
+    const dia = this.diasSemana[horario.dia_semana] || '';
+    const inicio = parseInt(horario.hora_inicio?.slice(0, 2) || '0');
+    const turno = inicio < 13 ? 'Mañana' : 'Tarde';
+    return `${dia} ${turno}`;
   }
 }

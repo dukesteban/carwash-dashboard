@@ -1,7 +1,9 @@
 <div class="config-page">
+  <!--
   <div class="config-header">
     <h2>⚙️ Configuración del negocio</h2>
   </div>
+  -->
 
   <!-- Mensaje feedback -->
   <div *ngIf="mensaje" class="alerta exito">{{ mensaje }}</div>
@@ -66,7 +68,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let horario of horarios" [class.inactivo]="!horario.activo">
-          <td>{{ getNombreDia(horario.dia_semana) }}</td>
+          <td>{{ getNombreDiaConTurno(horario) }}</td>
           <td>
             <input type="time" [(ngModel)]="horario.hora_inicio" class="input-hora" />
           </td>
