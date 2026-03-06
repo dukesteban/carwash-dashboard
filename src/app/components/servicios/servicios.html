@@ -44,13 +44,13 @@
       <tbody>
         <tr *ngFor="let servicio of servicios" [class.inactivo]="!servicio.activo">
           <td>
-            <input type="text" [(ngModel)]="servicio.nombre" class="input-inline" />
+            <input type="text" [(ngModel)]="servicio.nombre" class="input-inline" [readonly]="!servicio.editando" />
           </td>
           <td>
-            <input type="number" [(ngModel)]="servicio.precio" class="input-inline input-numero" />
+            <input type="number" [(ngModel)]="servicio.precio" class="input-inline input-numero" [readonly]="!servicio.editando" />
           </td>
           <td>
-            <input type="number" [(ngModel)]="servicio.duracion_minutos" class="input-inline input-numero" />
+            <input type="number" [(ngModel)]="servicio.duracion_minutos" class="input-inline input-numero" [readonly]="!servicio.editando" />
             <span class="unidad">min</span>
           </td>
           <td>
@@ -59,8 +59,11 @@
               <span class="slider"></span>
             </label>
           </td>
+
           <td class="acciones">
-            <button class="btn-save" (click)="guardarServicio(servicio)" title="Guardar">💾</button>
+            <button *ngIf="!servicio.editando" class="btn-edit" (click)="servicio.editando = true" title="Editar">✏️</button>
+            <button *ngIf="servicio.editando" class="btn-save" (click)="guardarServicio(servicio)" title="Guardar">💾</button>
+            <button *ngIf="servicio.editando" class="btn-cancel" (click)="servicio.editando = false" title="Cancelar">↩️</button>
             <button class="btn-delete" (click)="eliminarServicio(servicio.id)" title="Eliminar">🗑️</button>
           </td>
         </tr>

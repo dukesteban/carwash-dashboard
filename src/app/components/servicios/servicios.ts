@@ -30,7 +30,8 @@ export class ServiciosComponent implements OnInit {
   }
 
   async cargarServicios() {
-    this.servicios = await this.supabase.getServicios();
+    const data = await this.supabase.getServicios();
+    this.servicios = data.map((s: any) => ({ ...s, editando: false }));
     this.cdr.detectChanges();
   }
 
@@ -42,6 +43,7 @@ export class ServiciosComponent implements OnInit {
         duracion_minutos: servicio.duracion_minutos,
         activo: servicio.activo
       });
+      servicio.editando = false;
       this.mostrarMensaje('✅ Servicio actualizado.');
     } catch (e) {
       this.mostrarError('❌ Error al actualizar el servicio.');
