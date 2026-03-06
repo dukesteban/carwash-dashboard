@@ -112,4 +112,40 @@ export class SupabaseService {
       .eq('id', id);
     if (error) throw error;
   }
+
+  // SERVICIOS
+  async getServicios() {
+    const { data, error } = await this.supabase
+      .from('servicios')
+      .select('*')
+      .order('nombre', { ascending: true });
+    if (error) throw error;
+    return data;
+  }
+
+  async createServicio(servicio: any) {
+    const { data, error } = await this.supabase
+      .from('servicios')
+      .insert(servicio)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async updateServicio(id: number, servicio: any) {
+    const { error } = await this.supabase
+      .from('servicios')
+      .update(servicio)
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async deleteServicio(id: number) {
+    const { error } = await this.supabase
+      .from('servicios')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  }
 }
