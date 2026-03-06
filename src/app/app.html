@@ -1,11 +1,21 @@
 <nav class="navbar">
   <div class="navbar-brand">🚗 CarWash</div>
   <div class="navbar-links">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📋 Turnos</a>
-    <a routerLink="/agenda" routerLinkActive="active">📅 Agenda</a>
-    <a routerLink="/servicios" routerLinkActive="active">🛠️ Servicios</a>
-    <a routerLink="/clientes" routerLinkActive="active">👥 Clientes</a>
-    <a routerLink="/configuracion" routerLinkActive="active">⚙️ Configuración</a>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <span class="icono">📋</span><span class="texto"> Turnos</span>
+    </a>
+    <a routerLink="/agenda" routerLinkActive="active">
+      <span class="icono">📅</span><span class="texto"> Agenda</span>
+    </a>
+    <a routerLink="/servicios" routerLinkActive="active">
+      <span class="icono">🛠️</span><span class="texto"> Servicios</span>
+    </a>
+    <a routerLink="/clientes" routerLinkActive="active">
+      <span class="icono">👥</span><span class="texto"> Clientes</span>
+    </a>
+    <a routerLink="/configuracion" routerLinkActive="active">
+      <span class="icono">⚙️</span><span class="texto"> Config</span>
+    </a>
   </div>
 </nav>
 
@@ -35,20 +45,22 @@
     font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: 0.5px;
+    flex-shrink: 0;
   }
 
   .navbar-links {
     display: flex;
-    gap: 8px;
+    gap: 4px;
   }
 
   .navbar-links a {
     color: #94a3b8;
     text-decoration: none;
-    padding: 8px 14px;
+    padding: 8px 12px;
     border-radius: 8px;
     font-size: 0.9rem;
     transition: all 0.2s;
+    white-space: nowrap;
   }
 
   .navbar-links a:hover {
@@ -63,5 +75,20 @@
 
   .main-content {
     min-height: calc(100vh - 56px);
+  }
+
+  @media (max-width: 640px) {
+    .navbar {
+      padding: 0 12px;
+    }
+    .navbar-brand {
+      font-size: 1rem;
+    }
+    .navbar-links a {
+      padding: 8px;
+    }
+    .texto {
+      display: none;
+    }
   }
 </style>
