@@ -1,0 +1,161 @@
+<div class="agenda-page">
+
+  <!-- Controles -->
+  <div class="controles">
+    <div class="vistas">
+      <button [class.activo]="vista === 'dia'" (click)="vista = 'dia'">📅 Día</button>
+      <button [class.activo]="vista === 'semana'" (click)="vista = 'semana'">🗓️ Semana</button>
+    </div>
+    <div class="navegacion">
+      <button class="btn-nav" (click)="vista === 'dia' ? navegarDia(-1) : navegarSemana(-1)">‹</button>
+      <button class="btn-hoy" (click)="irHoy()">Hoy</button>
+      <button class="btn-nav" (click)="vista === 'dia' ? navegarDia(1) : navegarSemana(1)">›</button>
+    </div>
+    <div class="fecha-titulo">
+      <span *ngIf="vista === 'dia'">{{ formatearFecha(fechaActual) }}</span>
+      <span *ngIf="vista === 'semana'">
+        {{ formatearFechaCorta(diasDeSemana[0]) }} — {{ formatearFechaCorta(diasDeSemana[diasDeSemana.length - 1]) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- VISTA DÍA -->
+  <div *ngIf="vista === 'dia'" class="grilla-contenedor">
+    <div class="grilla-dia">
+      <!-- Columna de horas -->
+      <div class="col-horas-abs" [style.height.px]="alturaTotal">
+        <div *ngFor="let hora of horasEtiquetas"
+          class="etiqueta-hora-abs"
+          [style.top.px]="topParaHora(hora)">
+          {{ hora }}:00
+        </div>
+      </div>
+
+      <!-- Columna de turnos -->
+      <div class="col-turnos" [style.height.px]="alturaTotal">
+        <!-- Líneas de hora -->
+        <div *ngFor="let hora of horasEtiquetas"
+          class="linea-hora"
+          [style.top.px]="topParaHora(hora)">
+        </div>
+
+        <!-- Turnos -->
+        <div *ngFor="let turno of turnosDia"
+          class="bloque-turno"
+          [ngClass]="getColorTurno(turno)"
+          [style.top.px]="posicionTurno(turno).top"
+          [style.height.px]="posicionTurno(turno).height"
+          (click)="abrirPopup(turno)">
+          <div class="turno-header">
+            <span class="turno-hora">{{ formatearHora(turno.hora_inicio || turno.hora) }}</span>
+            <span class="turno-cliente">{{ turno.cliente_nombre }}</span>
+          </div>
+          <div class="turno-servicio">{{ turno.servicio_nombre }}</div>
+          <div class="turno-precio">${{ turno.precio | number }}</div>
+        </div>
+
+        <!-- Sin turnos -->
+        <div *ngIf="turnosDia.length === 0" class="sin-turnos">
+          Sin turnos para este día
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA SEMANA -->
+  <div *ngIf="vista === 'semana'" class="grilla-contenedor">
+    <div class="grilla-semana">
+
+      <!-- Header -->
+      <div class="header-semana">
+        <div class="col-horas-header"></div>
+        <div *ngFor="let dia of diasDeSemana"
+          class="col-dia-header"
+          [class.hoy]="esHoy(dia)">
+          <div class="dia-nombre">{{ diasSemana[dia.getDay()] }}</div>
+          <div class="dia-fecha" [class.dia-fecha-hoy]="esHoy(dia)">{{ formatearFechaCorta(dia) }}</div>
+        </div>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="semana-cuerpo">
+        <!-- Columna horas -->
+        <div class="col-horas-abs" [style.height.px]="alturaTotal">
+          <div *ngFor="let hora of horasEtiquetas"
+            class="etiqueta-hora-abs"
+            [style.top.px]="topParaHora(hora)">
+            {{ hora }}:00
+          </div>
+        </div>
+
+        <!-- Columnas por día -->
+        <div *ngFor="let dia of diasDeSemana" class="col-dia-cuerpo" [style.height.px]="alturaTotal">
+          <!-- Líneas de hora -->
+          <div *ngFor="let hora of horasEtiquetas"
+            class="linea-hora"
+            [style.top.px]="topParaHora(hora)">
+          </div>
+
+          <!-- Turnos del día -->
+          <div *ngFor="let turno of turnosDeDia(dia)"
+            class="bloque-turno-semana"
+            [ngClass]="getColorTurno(turno)"
+            [style.top.px]="posicionTurno(turno).top"
+            [style.height.px]="posicionTurno(turno).height"
+            (click)="abrirPopup(turno)">
+            <div class="turno-cliente-sm">{{ turno.cliente_nombre }}</div>
+            <div class="turno-servicio-sm">{{ turno.servicio_nombre }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- POPUP -->
+<div *ngIf="mostrarPopup && turnoSeleccionado" class="popup-overlay" (click)="cerrarPopup()">
+  <div class="popup" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <h3>Turno</h3>
+      <button class="btn-cerrar" (click)="cerrarPopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="popup-fila">
+        <span class="popup-label">Cliente</span>
+        <span>{{ turnoSeleccionado.cliente_nombre }}</span>
+      </div>
+      <div class="popup-fila">
+        <span class="popup-label">Servicio</span>
+        <span>{{ turnoSeleccionado.servicio_nombre }}</span>
+      </div>
+      <div class="popup-fila">
+        <span class="popup-label">Fecha</span>
+        <span>{{ turnoSeleccionado.fecha }}</span>
+      </div>
+      <div class="popup-fila">
+        <span class="popup-label">Hora</span>
+        <span>{{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }}</span>
+      </div>
+      <div class="popup-fila">
+        <span class="popup-label">Duración</span>
+        <span>{{ turnoSeleccionado.duracion_minutos || 45 }} min</span>
+      </div>
+      <div class="popup-fila">
+        <span class="popup-label">Precio</span>
+        <span>${{ turnoSeleccionado.precio | number }}</span>
+      </div>
+      <div class="popup-fila">
+        <span class="popup-label">Estado</span>
+        <span class="badge" [ngClass]="turnoSeleccionado.estado">{{ turnoSeleccionado.estado }}</span>
+      </div>
+    </div>
+    <div class="popup-acciones">
+      <button *ngIf="turnoSeleccionado.estado !== 'confirmado' && turnoSeleccionado.estado !== 'cancelado'"
+        class="btn-confirmar" (click)="cambiarEstado('confirmado')">✅ Confirmar</button>
+      <button *ngIf="turnoSeleccionado.estado !== 'cancelado'"
+        class="btn-cancelar" (click)="cambiarEstado('cancelado')">❌ Cancelar</button>
+    </div>
+  </div>
+</div>
