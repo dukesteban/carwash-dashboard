@@ -7,6 +7,9 @@
     <a routerLink="/agenda" routerLinkActive="active">
       <span class="icono">📅</span><span class="texto"> Agenda</span>
     </a>
+    <a routerLink="/ganancias" routerLinkActive="active">
+      <span class="icono">💰</span><span class="texto"> Ganancias</span>
+    </a>
     <a routerLink="/servicios" routerLinkActive="active">
       <span class="icono">🛠️</span><span class="texto"> Servicios</span>
     </a>
@@ -63,32 +66,15 @@
     white-space: nowrap;
   }
 
-  .navbar-links a:hover {
-    color: white;
-    background: #334155;
-  }
+  .navbar-links a:hover { color: white; background: #334155; }
+  .navbar-links a.active { color: white; background: #3b82f6; }
 
-  .navbar-links a.active {
-    color: white;
-    background: #3b82f6;
-  }
-
-  .main-content {
-    min-height: calc(100vh - 56px);
-  }
+  .main-content { min-height: calc(100vh - 56px); }
 
   @media (max-width: 640px) {
-    .navbar {
-      padding: 0 12px;
-    }
-    .navbar-brand {
-      font-size: 1rem;
-    }
-    .navbar-links a {
-      padding: 8px;
-    }
-    .texto {
-      display: none;
-    }
+    .navbar { padding: 0 12px; }
+    .navbar-brand { font-size: 1rem; }
+    .navbar-links a { padding: 8px; }
+    .texto { display: none; }
   }
 </style>

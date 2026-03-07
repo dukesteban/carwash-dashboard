@@ -194,4 +194,16 @@ export class SupabaseService {
       .eq('id', id);
     if (error) throw error;
   }
+
+  async getGanancias(desde: string, hasta: string) {
+    const { data, error } = await this.supabase
+      .from('turnos')
+      .select('*')
+      .eq('estado', 'atendido')
+      .gte('fecha', desde)
+      .lte('fecha', hasta)
+      .order('fecha', { ascending: true });
+    if (error) throw error;
+    return data;
+  }
 }
