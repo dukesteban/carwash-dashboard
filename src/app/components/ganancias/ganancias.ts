@@ -29,7 +29,7 @@ export class GananciasComponent implements OnInit {
     this.turnos = await this.supabase.getGanancias(desde, hasta);
     this.cargando = false;
     this.cdr.detectChanges();
-    this.scrollToHoy();
+    //this.scrollToHoy();
   }
 
   getRango(): { desde: string, hasta: string } {

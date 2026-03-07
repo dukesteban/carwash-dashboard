@@ -172,6 +172,7 @@
   height: 180px;
   overflow-x: auto;
   padding-bottom: 4px;
+  padding-top: 32px;
   width: 100%;
 }
 
@@ -208,8 +209,10 @@
 .barra-valor {
   font-size: 0.6rem;
   color: #64748b;
-  margin-bottom: 2px;
+  margin-bottom: 10px;
   white-space: nowrap;
+  transform: rotate(-45deg);
+  transform-origin: center center;
 }
 
 .barra {
