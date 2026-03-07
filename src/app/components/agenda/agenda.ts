@@ -63,7 +63,7 @@ export class AgendaComponent implements OnInit {
 
   // Top en px para una hora dada
   topParaHora(hora: number): number {
-    return (hora - this.horaInicio) * 60 * PX_POR_MINUTO;
+    return (hora - this.horaInicio) * 60 * PX_POR_MINUTO + 8;
   }
 
   // Posición y altura de un turno

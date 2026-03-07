@@ -83,13 +83,14 @@
   overflow-x: auto;
 }
 
+.spacer-top {
+  height: 8px;
+}
+
 // VISTA DÍA
 .grilla-dia {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  overflow: hidden;
-  padding-top: 8px;
+  display: flex;
+  min-width: 320px;
 }
 
 .col-horas-abs {
@@ -175,11 +176,7 @@
 
 // VISTA SEMANA
 .grilla-semana {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  overflow-x: auto;
-  padding-top: 8px;
+  min-width: 500px;
 }
 
 .header-semana {

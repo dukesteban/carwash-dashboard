@@ -22,6 +22,7 @@
   <!-- VISTA DÍA -->
   <div *ngIf="vista === 'dia'" class="grilla-contenedor">
     <div class="grilla-dia">
+      <div class="spacer-top"></div>
       <!-- Columna de horas -->
       <div class="col-horas-abs" [style.height.px]="alturaTotal">
         <div *ngFor="let hora of horasEtiquetas"

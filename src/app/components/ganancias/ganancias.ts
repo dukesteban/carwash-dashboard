@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
@@ -15,6 +15,7 @@ export class GananciasComponent implements OnInit {
   fechaActual = new Date();
   turnos: any[] = [];
   cargando = false;
+  @ViewChild('graficoRef') graficoRef!: ElementRef;
 
   constructor(private supabase: SupabaseService, private cdr: ChangeDetectorRef) {}
 
@@ -155,16 +156,18 @@ export class GananciasComponent implements OnInit {
   scrollToHoy() {
     if (this.vista !== 'mes') return;
     setTimeout(() => {
-      const hoy = new Date().getDate();
-      const grafico = document.querySelector('.grafico');
+      const grafico = this.graficoRef?.nativeElement;
       if (!grafico) return;
-      const barras = grafico.querySelectorAll('.barra-col');
+      const hoy = new Date().getDate();
+      const inner = grafico.querySelector('.grafico-inner') as HTMLElement;
+      if (!inner) return;
+      const barras = inner.querySelectorAll('.barra-col');
       const idx = hoy - 1;
       if (barras[idx]) {
         const el = barras[idx] as HTMLElement;
-        const offset = el.offsetLeft - grafico.clientWidth / 2 + el.clientWidth / 2;
-        grafico.scrollLeft = offset;
+        grafico.scrollLeft = el.offsetLeft - grafico.clientWidth / 2 + el.clientWidth / 2;
+        console.log('scroll', grafico.scrollLeft, el.offsetLeft, grafico.clientWidth);
       }
-    }, 100);
+    }, 800);
   }
 }

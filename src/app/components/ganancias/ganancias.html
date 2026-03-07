@@ -48,12 +48,13 @@
 
   <div class="grid-inferior">
 
-    <!-- Gráfico -->
-    <div class="seccion">
-      <h3>{{ vista === 'dia' ? 'Ganancias por hora' : 'Ganancias por día' }}</h3>
-      <div *ngIf="cargando" class="vacio">Cargando...</div>
-      <div *ngIf="!cargando && totalAtendidos === 0" class="vacio">Sin datos para este período</div>
-      <div *ngIf="!cargando && totalAtendidos > 0" class="grafico">
+  <!-- Gráfico -->
+  <div class="seccion">
+    <h3>{{ vista === 'dia' ? 'Ganancias por hora' : 'Ganancias por día' }}</h3>
+    <div *ngIf="cargando" class="vacio">Cargando...</div>
+    <div *ngIf="!cargando && totalAtendidos === 0" class="vacio">Sin datos para este período</div>
+    <div *ngIf="!cargando && totalAtendidos > 0" class="grafico" #graficoRef>
+      <div class="grafico-inner">
         <div *ngFor="let barra of datosGrafico" class="barra-col">
           <div class="barra-wrap">
             <div class="barra-valor" *ngIf="barra.total > 0">${{ barra.total | number }}</div>
@@ -66,6 +67,7 @@
         </div>
       </div>
     </div>
+  </div>
 
     <!-- Por servicio -->
     <div class="seccion">
