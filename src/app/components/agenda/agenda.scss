@@ -85,8 +85,11 @@
 
 // VISTA DÍA
 .grilla-dia {
-  display: flex;
-  min-width: 320px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  overflow: hidden;
+  padding-top: 8px;
 }
 
 .col-horas-abs {
@@ -172,7 +175,11 @@
 
 // VISTA SEMANA
 .grilla-semana {
-  min-width: 500px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  overflow-x: auto;
+  padding-top: 8px;
 }
 
 .header-semana {

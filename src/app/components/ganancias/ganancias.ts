@@ -28,6 +28,7 @@ export class GananciasComponent implements OnInit {
     this.turnos = await this.supabase.getGanancias(desde, hasta);
     this.cargando = false;
     this.cdr.detectChanges();
+    this.scrollToHoy();
   }
 
   getRango(): { desde: string, hasta: string } {
@@ -149,5 +150,21 @@ export class GananciasComponent implements OnInit {
       const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
       return `${meses[this.fechaActual.getMonth()]} ${this.fechaActual.getFullYear()}`;
     }
+  }
+
+  scrollToHoy() {
+    if (this.vista !== 'mes') return;
+    setTimeout(() => {
+      const hoy = new Date().getDate();
+      const grafico = document.querySelector('.grafico');
+      if (!grafico) return;
+      const barras = grafico.querySelectorAll('.barra-col');
+      const idx = hoy - 1;
+      if (barras[idx]) {
+        const el = barras[idx] as HTMLElement;
+        const offset = el.offsetLeft - grafico.clientWidth / 2 + el.clientWidth / 2;
+        grafico.scrollLeft = offset;
+      }
+    }, 100);
   }
 }
