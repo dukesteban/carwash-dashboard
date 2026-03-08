@@ -7,7 +7,7 @@
     <div class="seccion-header">
       <h3>Servicios</h3>
       <button class="btn-secondary" (click)="mostrarForm = !mostrarForm">
-        {{ mostrarForm ? 'Cancelar' : '+ Agregar servicio' }}
+        {{ mostrarForm ? '↩️ Cancelar' : '➕ Agregar' }}
       </button>
     </div>
 
@@ -26,7 +26,7 @@
           <label>Duración (min)</label>
           <input type="number" [(ngModel)]="nuevoServicio.duracion_minutos" placeholder="60" />
         </div>
-        <button class="btn-primary" (click)="agregarServicio()">Agregar</button>
+        <button class="btn-primary" (click)="agregarServicio()">➕ Agregar</button>
       </div>
     </div>
 
