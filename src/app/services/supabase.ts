@@ -52,6 +52,36 @@ export class SupabaseService {
     return data;
   }
 
+    async postergarTurno(id: number, datos: any) {
+    const { error } = await this.supabase
+      .from('turnos')
+      .update({
+        fecha: datos.fecha,
+        hora: datos.hora,
+        hora_inicio: datos.hora,
+        hora_fin: datos.horaFin,
+        servicio_id: datos.servicio_id,
+        servicio_nombre: datos.servicio_nombre,
+        precio: datos.precio,
+        duracion_minutos: datos.duracion_minutos
+      })
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async getTurnosSolapados(fecha: string, horaInicio: string, horaFin: string, excludeId: number) {
+    const { data, error } = await this.supabase
+      .from('turnos')
+      .select('*')
+      .eq('fecha', fecha)
+      .neq('estado', 'cancelado')
+      .neq('id', excludeId)
+      .lt('hora_inicio', horaFin)
+      .gt('hora_fin', horaInicio);
+    if (error) throw error;
+    return data;
+  }
+
   // CONFIGURACION
   async getConfiguracion() {
     const { data, error } = await this.supabase

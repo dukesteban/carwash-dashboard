@@ -287,19 +287,24 @@
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
 }
 
 .popup-fila {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.9rem;
   color: #1e293b;
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f5f9;
+  &:last-child { border-bottom: none; }
 }
 
 .popup-label {
   color: #64748b;
   font-weight: 500;
+  font-size: 0.85rem;
 }
 
 .badge {
@@ -331,4 +336,36 @@
 
   .btn-atendido { background: #dcfce7; color: #166534; &:hover { background: #bbf7d0; } }
   .btn-cancelado { background: #fee2e2; color: #991b1b; &:hover { background: #fecaca; } }
+  .btn-postergar { background: #ede9fe; color: #6d28d9; &:hover { background: #ddd6fe; } }
+
+  .error-msg {
+    color: #991b1b;
+    font-size: 0.85rem;
+    background: #fee2e2;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+}
+
+.campo {
+  margin-bottom: 16px;
+  label {
+    display: block;
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  input, select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: #f8fafc;
+    color: #1e293b;
+    &:focus { outline: none; border-color: #3b82f6; background: white; }
+  }
 }

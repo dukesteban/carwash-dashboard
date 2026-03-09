@@ -119,44 +119,80 @@
 <div *ngIf="mostrarPopup && turnoSeleccionado" class="popup-overlay" (click)="cerrarPopup()">
   <div class="popup" (click)="$event.stopPropagation()">
     <div class="popup-header">
-      <h3>Turno</h3>
+      <h3>{{ modoPostergar ? 'Postergar turno' : 'Turno' }}</h3>
       <button class="btn-cerrar" (click)="cerrarPopup()">✕</button>
     </div>
-    <div class="popup-body">
-      <div class="popup-fila">
-        <span class="popup-label">Cliente</span>
-        <span>{{ turnoSeleccionado.cliente_nombre }}</span>
+
+    <!-- Vista normal -->
+    <div *ngIf="!modoPostergar">
+      <div class="popup-body">
+        <div class="detalle-bloque">
+          <div class="popup-fila">
+            <span class="popup-label">Cliente</span>
+            <span>{{ turnoSeleccionado.cliente_nombre }}</span>
+          </div>
+          <div class="popup-fila">
+            <span class="popup-label">Servicio</span>
+            <span>{{ turnoSeleccionado.servicio_nombre }}</span>
+          </div>
+          <div class="popup-fila">
+            <span class="popup-label">Fecha</span>
+            <span>{{ turnoSeleccionado.fecha }}</span>
+          </div>
+          <div class="popup-fila">
+            <span class="popup-label">Hora</span>
+            <span>{{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }}</span>
+          </div>
+          <div class="popup-fila">
+            <span class="popup-label">Duración</span>
+            <span>{{ turnoSeleccionado.duracion_minutos || 45 }} min</span>
+          </div>
+          <div class="popup-fila">
+            <span class="popup-label">Precio</span>
+            <span>${{ turnoSeleccionado.precio | number }}</span>
+          </div>
+          <div class="popup-fila">
+            <span class="popup-label">Estado</span>
+            <span class="badge" [ngClass]="turnoSeleccionado.estado">{{ turnoSeleccionado.estado }}</span>
+          </div>
+        </div>
       </div>
-      <div class="popup-fila">
-        <span class="popup-label">Servicio</span>
-        <span>{{ turnoSeleccionado.servicio_nombre }}</span>
-      </div>
-      <div class="popup-fila">
-        <span class="popup-label">Fecha</span>
-        <span>{{ turnoSeleccionado.fecha }}</span>
-      </div>
-      <div class="popup-fila">
-        <span class="popup-label">Hora</span>
-        <span>{{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }}</span>
-      </div>
-      <div class="popup-fila">
-        <span class="popup-label">Duración</span>
-        <span>{{ turnoSeleccionado.duracion_minutos || 45 }} min</span>
-      </div>
-      <div class="popup-fila">
-        <span class="popup-label">Precio</span>
-        <span>${{ turnoSeleccionado.precio | number }}</span>
-      </div>
-      <div class="popup-fila">
-        <span class="popup-label">Estado</span>
-        <span class="badge" [ngClass]="turnoSeleccionado.estado">{{ turnoSeleccionado.estado }}</span>
+      <div class="popup-acciones">
+        <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
+          class="btn-atendido" (click)="cambiarEstado('atendido')">✅ Atendido</button>
+        <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
+          class="btn-postergar" (click)="activarPostergar()">📅 Postergar</button>
+        <button *ngIf="turnoSeleccionado.estado !== 'cancelado'"
+          class="btn-cancelado" (click)="cambiarEstado('cancelado')">❌ Canceló</button>
       </div>
     </div>
-    <div class="popup-acciones">
-      <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
-        class="btn-atendido" (click)="cambiarEstado('atendido')">✅ Atendido</button>
-      <button *ngIf="turnoSeleccionado.estado !== 'cancelado'"
-        class="btn-cancelado" (click)="cambiarEstado('cancelado')">❌ Cancelado</button>
+
+    <!-- Vista postergar -->
+    <div *ngIf="modoPostergar">
+      <div class="popup-body">
+        <div class="campo">
+          <label>Nueva fecha</label>
+          <input type="date" [(ngModel)]="nuevaFecha" />
+        </div>
+        <div class="campo">
+          <label>Nueva hora</label>
+          <input type="time" [(ngModel)]="nuevaHora" />
+        </div>
+        <div class="campo">
+          <label>Servicio</label>
+          <select [(ngModel)]="nuevoServicioId">
+            <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombre }} — ${{ s.precio | number }}</option>
+          </select>
+        </div>
+        <div *ngIf="errorPostergar" class="error-msg">{{ errorPostergar }}</div>
+      </div>
+      <div class="popup-acciones">
+        <button class="btn-atendido" (click)="confirmarPostergar()" [disabled]="postergando">
+          {{ postergando ? 'Guardando...' : '💾 Confirmar' }}
+        </button>
+        <button class="btn-cancelado" (click)="modoPostergar = false">↩️ Volver</button>
+      </div>
     </div>
+
   </div>
 </div>

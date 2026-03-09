@@ -46,4 +46,10 @@ export class DashboardComponent implements OnInit {
     await this.supabase.updateEstadoTurno(id, estado);
     await this.cargarDatos();
   }
+
+  esVencido(turno: any): boolean {
+    if (turno.estado !== 'pendiente') return false;
+    const fechaHora = new Date(`${turno.fecha}T${turno.hora_inicio || turno.hora}`);
+    return fechaHora < new Date();
+  }
 }

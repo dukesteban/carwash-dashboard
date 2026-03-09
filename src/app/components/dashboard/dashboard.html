@@ -43,13 +43,15 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let turno of turnosHoy">
+        <tr *ngFor="let turno de turnosHoy" [class.vencido]="esVencido(turno)">
           <td>{{ turno.hora?.slice(0,5) }}</td>
           <td>{{ turno.cliente_nombre }}</td>
           <td>{{ turno.servicio_nombre }}</td>
           <td>${{ turno.precio | number }}</td>
           <td>
-            <span class="badge" [ngClass]="turno.estado">{{ turno.estado }}</span>
+            <span class="badge" [ngClass]="esVencido(turno) ? 'vencido' : turno.estado">
+              {{ esVencido(turno) ? 'vencido' : turno.estado }}
+            </span>
           </td>
           <td class="acciones">
             <button *ngIf="turno.estado !== 'atendido' && turno.estado !== 'cancelado'"
@@ -82,14 +84,16 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let turno of todosTurnos">
+        <tr *ngFor="let turno of todosTurnos" [class.vencido]="esVencido(turno)">
           <td>{{ turno.fecha }}</td>
           <td>{{ turno.hora?.slice(0,5) }}</td>
           <td>{{ turno.cliente_nombre }}</td>
           <td>{{ turno.servicio_nombre }}</td>
           <td>${{ turno.precio | number }}</td>
           <td>
-            <span class="badge" [ngClass]="turno.estado">{{ turno.estado }}</span>
+            <span class="badge" [ngClass]="esVencido(turno) ? 'vencido' : turno.estado">
+              {{ esVencido(turno) ? 'vencido' : turno.estado }}
+            </span>
           </td>
         </tr>
         <tr *ngIf="todosTurnos.length === 0">
