@@ -329,6 +329,6 @@
     transition: all 0.15s;
   }
 
-  .btn-confirmar { background: #dcfce7; color: #166534; &:hover { background: #bbf7d0; } }
-  .btn-cancelar { background: #fee2e2; color: #991b1b; &:hover { background: #fecaca; } }
+  .btn-atendido { background: #dcfce7; color: #166534; &:hover { background: #bbf7d0; } }
+  .btn-cancelado { background: #fee2e2; color: #991b1b; &:hover { background: #fecaca; } }
 }

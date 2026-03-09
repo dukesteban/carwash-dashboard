@@ -53,9 +53,9 @@
           </td>
           <td class="acciones">
             <button *ngIf="turno.estado !== 'atendido' && turno.estado !== 'cancelado'"
-              class="btn-accion confirmar" (click)="cambiarEstado(turno.id, 'atendido')" title="Confirmar">✅</button>
+              class="btn-accion atendido" (click)="cambiarEstado(turno.id, 'atendido')" title="Atendido">✅</button>
             <button *ngIf="turno.estado !== 'cancelado'"
-              class="btn-accion cancelar" (click)="cambiarEstado(turno.id, 'cancelado')" title="Cancelar">❌</button>
+              class="btn-accion cancelado" (click)="cambiarEstado(turno.id, 'cancelado')" title="Cancelado">❌</button>
           </td>
         </tr>
         <tr *ngIf="turnosHoy.length === 0">

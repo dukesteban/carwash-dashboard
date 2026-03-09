@@ -165,6 +165,13 @@ export class SupabaseService {
       .update({ nombre })
       .eq('id', id);
     if (error) throw error;
+
+    // Actualizar nombre en todos los turnos del cliente
+    const { error: error2 } = await this.supabase
+      .from('turnos')
+      .update({ cliente_nombre: nombre })
+      .eq('cliente_id', id);
+    if (error2) throw error2;
   }
 
   async getTurnosCliente(clienteId: number) {
