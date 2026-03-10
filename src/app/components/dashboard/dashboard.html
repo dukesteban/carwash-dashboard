@@ -33,33 +33,35 @@
         <button class="btn-primary" (click)="abrirModalNuevoTurno()">➕Nuevo turno📅</button>
       </div>
     </div>
-    <table class="tabla">
-      <thead>
-        <tr>
-          <th>Hora</th>
-          <th>Cliente</th>
-          <th>Servicio</th>
-          <th>Precio</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let turno of turnosHoy" [class.vencido]="esVencido(turno)" (click)="abrirPopup(turno)" style="cursor:pointer">
-          <td>{{ turno.hora?.slice(0,5) }}</td>
-          <td [style.color]="!turno.cliente_telefono ? '#dc2626' : ''" >{{ turno.cliente_nombre }}</td>
-          <td>{{ turno.servicio_nombre }}</td>
-          <td>${{ turno.precio | number }}</td>
-          <td>
-            <span class="badge" [ngClass]="esVencido(turno) ? 'vencido' : turno.estado">
-              {{ esVencido(turno) ? 'vencido' : turno.estado }}
-            </span>
-          </td>
-        </tr>
-        <tr *ngIf="turnosHoy.length === 0">
-          <td colspan="5" class="vacio">No hay turnos para hoy</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="tabla-wrapper">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Servicio</th>
+            <th>Precio</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let turno of turnosHoy" [class.vencido]="esVencido(turno)" (click)="abrirPopup(turno)" style="cursor:pointer">
+            <td>{{ turno.hora?.slice(0,5) }}</td>
+            <td [style.color]="!turno.cliente_telefono ? '#dc2626' : ''" >{{ turno.cliente_nombre }}</td>
+            <td>{{ turno.servicio_nombre }}</td>
+            <td>${{ turno.precio | number }}</td>
+            <td>
+              <span class="badge" [ngClass]="esVencido(turno) ? 'vencido' : turno.estado">
+                {{ esVencido(turno) ? 'vencido' : turno.estado }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="turnosHoy.length === 0">
+            <td colspan="5" class="vacio">No hay turnos para hoy</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Todos los turnos -->
@@ -71,35 +73,37 @@
         <button [class.activo]="vistasTurnos === 'mes'" (click)="vistasTurnos = 'mes'">📅 Mes</button>
       </div>
     </div>
-    <table class="tabla">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Hora</th>
-          <th>Cliente</th>
-          <th>Servicio</th>
-          <th>Precio</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let turno of turnosFiltrados" [class.vencido]="esVencido(turno)" (click)="abrirPopup(turno)" style="cursor:pointer">
-          <td>{{ turno.fecha }}</td>
-          <td>{{ turno.hora?.slice(0,5) }}</td>
-          <td [style.color]="!turno.cliente_telefono ? '#dc2626' : ''" >{{ turno.cliente_nombre }}</td>
-          <td>{{ turno.servicio_nombre }}</td>
-          <td>${{ turno.precio | number }}</td>
-          <td>
-            <span class="badge" [ngClass]="esVencido(turno) ? 'vencido' : turno.estado">
-              {{ esVencido(turno) ? 'vencido' : turno.estado }}
-            </span>
-          </td>
-        </tr>
-        <tr *ngIf="turnosFiltrados.length === 0">
-          <td colspan="6" class="vacio">No hay turnos para este período</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="tabla-wrapper">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Servicio</th>
+            <th>Precio</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let turno of turnosFiltrados" [class.vencido]="esVencido(turno)" (click)="abrirPopup(turno)" style="cursor:pointer">
+            <td>{{ turno.fecha }}</td>
+            <td>{{ turno.hora?.slice(0,5) }}</td>
+            <td [style.color]="!turno.cliente_telefono ? '#dc2626' : ''" >{{ turno.cliente_nombre }}</td>
+            <td>{{ turno.servicio_nombre }}</td>
+            <td>${{ turno.precio | number }}</td>
+            <td>
+              <span class="badge" [ngClass]="esVencido(turno) ? 'vencido' : turno.estado">
+                {{ esVencido(turno) ? 'vencido' : turno.estado }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="turnosFiltrados.length === 0">
+            <td colspan="6" class="vacio">No hay turnos para este período</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- POPUP -->
