@@ -31,7 +31,6 @@
       <h3>Turnos de hoy</h3>
       <div style="display:flex; gap:8px">
         <button class="btn-primary" (click)="abrirModalNuevoTurno()">📅 Nuevo turno</button>
-        <button class="btn-secondary" (click)="cargarDatos()">🔄 Actualizar</button>
       </div>
     </div>
     <table class="tabla">
@@ -66,7 +65,11 @@
   <!-- Todos los turnos -->
   <div class="seccion">
     <div class="seccion-header">
-      <h3>Todos los turnos</h3>
+      <h3>Turnos</h3>
+      <div class="vistas">
+        <button [class.activo]="vistasTurnos === 'semana'" (click)="vistasTurnos = 'semana'">Semana</button>
+        <button [class.activo]="vistasTurnos === 'mes'" (click)="vistasTurnos = 'mes'">Mes</button>
+      </div>
     </div>
     <table class="tabla">
       <thead>
@@ -80,7 +83,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let turno of todosTurnos" [class.vencido]="esVencido(turno)" (click)="abrirPopup(turno)" style="cursor:pointer">
+        <tr *ngFor="let turno of turnosFiltrados" [class.vencido]="esVencido(turno)" (click)="abrirPopup(turno)" style="cursor:pointer">
           <td>{{ turno.fecha }}</td>
           <td>{{ turno.hora?.slice(0,5) }}</td>
           <td [style.color]="!turno.cliente_telefono ? '#dc2626' : ''" >{{ turno.cliente_nombre }}</td>
@@ -92,8 +95,8 @@
             </span>
           </td>
         </tr>
-        <tr *ngIf="todosTurnos.length === 0">
-          <td colspan="6" class="vacio">No hay turnos registrados</td>
+        <tr *ngIf="turnosFiltrados.length === 0">
+          <td colspan="6" class="vacio">No hay turnos para este período</td>
         </tr>
       </tbody>
     </table>

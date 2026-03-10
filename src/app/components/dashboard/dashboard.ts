@@ -16,7 +16,8 @@ export class DashboardComponent implements OnInit {
   totalIngresos = 0;
   totalClientes = 0;
   turnosPendientes = 0;
-
+  vistasTurnos: 'semana' | 'mes' = 'semana';
+  
   // Popup
   turnoSeleccionado: any = null;
   mostrarPopup = false;
@@ -72,6 +73,28 @@ export class DashboardComponent implements OnInit {
       .filter((t: any) => t.estado === 'pendiente').length;
 
     this.cdr.detectChanges();
+  }
+
+  get turnosFiltrados(): any[] {
+    const hoy = new Date();
+    const formatLocal = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    if (this.vistasTurnos === 'semana') {
+      const lunes = new Date(hoy);
+      lunes.setDate(hoy.getDate() - (hoy.getDay() === 0 ? 6 : hoy.getDay() - 1));
+      const domingo = new Date(lunes);
+      domingo.setDate(lunes.getDate() + 6);
+      return this.todosTurnos.filter(t => t.fecha >= formatLocal(lunes) && t.fecha <= formatLocal(domingo));
+    } else {
+      const y = hoy.getFullYear();
+      const m = String(hoy.getMonth() + 1).padStart(2, '0');
+      return this.todosTurnos.filter(t => t.fecha.startsWith(`${y}-${m}`));
+    }
   }
 
   async cambiarEstado(id: number, estado: string) {
