@@ -218,6 +218,7 @@ export class AgendaComponent implements OnInit {
   }
 
   async confirmarEditarTurno() {
+    if (!confirm('¿Confirmar cambio de turno?')) return;
     if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
       this.errorEditarTurno = 'Completá todos los campos.';
       return;
@@ -225,11 +226,14 @@ export class AgendaComponent implements OnInit {
     const servicio = this.nuevoServicio;
     if (!servicio) return;
 
-    // Validar que no sea en el pasado
+    // Validar que no sea en el pasado — solo si el turno original es futuro
     const fechaHora = new Date(`${this.nuevaFecha}T${this.nuevaHora}`);
-    if (fechaHora <= new Date()) {
-      this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
-      return;
+    const turnoOriginalFecha = new Date(`${this.turnoSeleccionado.fecha}T${this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora}`);
+    if (turnoOriginalFecha > new Date()) {
+      if (fechaHora <= new Date()) {
+        this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
+        return;
+      }
     }
 
     // Calcular hora fin
@@ -243,7 +247,7 @@ export class AgendaComponent implements OnInit {
       this.nuevaFecha, this.nuevaHora, horaFin, this.turnoSeleccionado.id
     );
     if (solapados.length > 0) {
-      this.errorEditarTurno = `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`;
+      this.errorEditarTurno = `Ya hay un turno atendiendose de ${solapados[0].cliente_nombre} durante esa hora.`;
       return;
     }
 

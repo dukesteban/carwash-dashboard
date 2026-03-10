@@ -119,6 +119,7 @@ export class DashboardComponent implements OnInit {
   }
 
   async confirmarEditarTurno() {
+    if (!confirm('¿Confirmar cambio de turno?')) return;
     if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
       this.errorEditarTurno = 'Completá todos los campos.';
       return;
@@ -127,9 +128,12 @@ export class DashboardComponent implements OnInit {
     if (!servicio) return;
 
     const fechaHora = new Date(`${this.nuevaFecha}T${this.nuevaHora}`);
-    if (fechaHora <= new Date()) {
-      this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
-      return;
+    const turnoOriginalFecha = new Date(`${this.turnoSeleccionado.fecha}T${this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora}`);
+    if (turnoOriginalFecha > new Date()) {
+      if (fechaHora <= new Date()) {
+        this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
+        return;
+      }
     }
 
     const [h, m] = this.nuevaHora.split(':').map(Number);
