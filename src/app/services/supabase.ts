@@ -252,6 +252,16 @@ export class SupabaseService {
     if (error) throw error;
   }
 
+  async crearCliente(nombre: string) {
+    const { data, error } = await this.supabase
+      .from('clientes')
+      .insert({ nombre })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
     // GANANCIAS
   async getGanancias(desde: string, hasta: string) {
     const { data, error } = await this.supabase

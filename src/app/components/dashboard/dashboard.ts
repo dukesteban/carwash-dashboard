@@ -41,6 +41,8 @@ export class DashboardComponent implements OnInit {
   nuevoTurnoServicioId: number | null = null;
   guardandoNuevoTurno = false;
   errorNuevoTurno = '';
+  mostrarFormNuevoCliente = false;
+  nombreNuevoCliente = '';
 
   get nuevoServicio(): any {
     return this.servicios.find(s => s.id == this.nuevoServicioId) || null;
@@ -272,5 +274,17 @@ export class DashboardComponent implements OnInit {
     this.guardandoNuevoTurno = false;
     await this.cargarDatos();
     this.cerrarModalNuevoTurno();
+  }
+
+  async crearYSeleccionarCliente() {
+    if (!this.nombreNuevoCliente.trim()) return;
+    try {
+      const cliente = await this.supabase.crearCliente(this.nombreNuevoCliente.trim());
+      this.seleccionarClienteNuevo({ ...cliente, telefonos: [] });
+      this.mostrarFormNuevoCliente = false;
+      this.nombreNuevoCliente = '';
+    } catch (e) {
+      this.errorNuevoTurno = '❌ Error al crear el cliente.';
+    }
   }
 }

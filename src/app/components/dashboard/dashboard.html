@@ -186,6 +186,18 @@
           <div *ngIf="clienteSeleccionadoNuevo" class="cliente-seleccionado">
             ✅ {{ clienteSeleccionadoNuevo.nombre }}
           </div>
+          <!-- Crear cliente nuevo -->
+          <div *ngIf="!clienteSeleccionadoNuevo && busquedaCliente.length > 0 && clientesBuscados.length === 0" class="crear-cliente">
+            <span>No se encontró el cliente.</span>
+            <button class="btn-crear-cliente" (click)="mostrarFormNuevoCliente = true" *ngIf="!mostrarFormNuevoCliente">
+              + Crear "{{ busquedaCliente }}"
+            </button>
+            <div *ngIf="mostrarFormNuevoCliente" class="form-nuevo-cliente">
+              <input type="text" [(ngModel)]="nombreNuevoCliente" placeholder="Nombre completo" />
+              <button class="btn-primary" (click)="crearYSeleccionarCliente()">Crear</button>
+              <button class="btn-secondary-sm" (click)="mostrarFormNuevoCliente = false">Cancelar</button>
+            </div>
+          </div>
         </div>
 
         <!-- Servicio -->
