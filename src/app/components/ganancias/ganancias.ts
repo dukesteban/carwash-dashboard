@@ -112,7 +112,7 @@ export class GananciasComponent implements OnInit {
 
   get totalPorServicio(): { nombre: string, cantidad: number, total: number }[] {
     const mapa: { [key: string]: { cantidad: number, total: number } } = {};
-    this.turnos.forEach(t => {
+    this.turnos.filter(t => t.estado === 'atendido').forEach(t => {
       if (!mapa[t.servicio_nombre]) mapa[t.servicio_nombre] = { cantidad: 0, total: 0 };
       mapa[t.servicio_nombre].cantidad++;
       mapa[t.servicio_nombre].total += t.precio || 0;
