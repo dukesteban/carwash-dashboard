@@ -49,7 +49,7 @@
 - [ ] **Realtime** — Supabase realtime subscriptions (sin polling)
 - [ ] **Nombre del negocio en navbar** — leer desde tabla `configuracion`
 - [ ] **Tipografía** — cambiar fuente en toda la app
-- [ ] **Postergar turno** — nueva fecha/hora desde dashboard, validar horario laboral, sin superposición, opción de cambiar servicio
+- [ ] **Editar/Postergar turno** — nueva fecha/hora desde dashboard, validar horario laboral, sin superposición, opción de cambiar servicio
 - [ ] **Agregar turno manual** — desde dashboard con mismas validaciones que el bot (para clientes que vienen en persona)
 - [ ] **Selector semana/mes** en lista de turnos del dashboard
 - [ ] **Colores de estado:**

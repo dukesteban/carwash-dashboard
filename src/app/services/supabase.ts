@@ -52,7 +52,7 @@ export class SupabaseService {
     return data;
   }
 
-    async postergarTurno(id: number, datos: any) {
+    async editarTurno(id: number, datos: any) {
     const { error } = await this.supabase
       .from('turnos')
       .update({

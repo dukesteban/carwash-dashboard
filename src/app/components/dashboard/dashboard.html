@@ -103,11 +103,11 @@
   <div *ngIf="mostrarPopup && turnoSeleccionado" class="popup-overlay" (click)="cerrarPopup()">
     <div class="popup" (click)="$event.stopPropagation()">
       <div class="popup-header">
-        <h3>{{ modoPostergar ? 'Postergar turno' : 'Turno' }}</h3>
+        <h3>{{ modoEditarTurno ? 'Editar turno' : 'Turno' }}</h3>
         <button class="btn-cerrar" (click)="cerrarPopup()">✕</button>
       </div>
 
-      <div *ngIf="!modoPostergar">
+      <div *ngIf="!modoEditarTurno">
         <div class="popup-body">
           <div class="detalle-bloque">
             <div class="popup-fila"><span class="popup-label">Cliente</span><span>{{ turnoSeleccionado.cliente_nombre }}</span></div>
@@ -125,13 +125,13 @@
           <button *ngIf="turnoSeleccionado.estado !== 'cancelado' && turnoSeleccionado.estado !== 'atendido'"
             class="btn-cancelado" (click)="cambiarEstadoPopup('cancelado')">❌ Canceló</button>
           <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
-            class="btn-postergar" (click)="activarPostergar()">📅 Postergar</button>
+            class="btn-editarTurno" (click)="activarEditarTurno()">📅 Editar</button>
           <button *ngIf="turnoSeleccionado.estado === 'atendido' || turnoSeleccionado.estado === 'cancelado'"
             class="btn-editar" (click)="cambiarEstadoPopup('pendiente')">↩️ Volver a Pendiente</button>
         </div>
       </div>
 
-      <div *ngIf="modoPostergar">
+      <div *ngIf="modoEditarTurno">
         <div class="popup-body">
           <div class="campo">
             <label>Nueva fecha</label>
@@ -147,13 +147,13 @@
               <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombre }} — ${{ s.precio | number }}</option>
             </select>
           </div>
-          <div *ngIf="errorPostergar" class="error-msg">{{ errorPostergar }}</div>
+          <div *ngIf="errorEditarTurno" class="error-msg">{{ errorEditarTurno }}</div>
         </div>
         <div class="popup-acciones">
-          <button class="btn-atendido" (click)="confirmarPostergar()" [disabled]="postergando">
-            {{ postergando ? 'Guardando...' : '💾 Confirmar' }}
+          <button class="btn-atendido" (click)="confirmarEditarTurno()" [disabled]="editandoTurno">
+            {{ editandoTurno ? 'Guardando...' : '💾 Confirmar' }}
           </button>
-          <button class="btn-cancelado" (click)="modoPostergar = false">↩️ Volver</button>
+          <button class="btn-cancelado" (click)="modoEditarTurno = false">↩️ Volver</button>
         </div>
       </div>
 

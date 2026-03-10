@@ -23,10 +23,10 @@ export class DashboardComponent implements OnInit {
   horarios: any[] = [];
   servicios: any[] = [];
 
-  // Postergar
-  modoPostergar = false;
-  postergando = false;
-  errorPostergar = '';
+  // Editar/Postergar
+  modoEditarTurno = false;
+  editandoTurno = false;
+  errorEditarTurno = '';
   nuevaFecha = '';
   nuevaHora = '';
   nuevoServicioId: number | null = null;
@@ -88,8 +88,8 @@ export class DashboardComponent implements OnInit {
   async abrirPopup(turno: any) {
     this.turnoSeleccionado = turno;
     this.mostrarPopup = true;
-    this.modoPostergar = false;
-    this.errorPostergar = '';
+    this.modoEditarTurno = false;
+    this.errorEditarTurno = '';
     if (!this.servicios.length) this.servicios = await this.supabase.getServicios();
     if (!this.horarios.length) this.horarios = await this.supabase.getHorarios();
     this.cdr.detectChanges();
@@ -98,7 +98,7 @@ export class DashboardComponent implements OnInit {
   cerrarPopup() {
     this.mostrarPopup = false;
     this.turnoSeleccionado = null;
-    this.modoPostergar = false;
+    this.modoEditarTurno = false;
     this.cdr.detectChanges();
   }
 
@@ -109,18 +109,18 @@ export class DashboardComponent implements OnInit {
     this.cerrarPopup();
   }
 
-  activarPostergar() {
-    this.modoPostergar = true;
+  activarEditarTurno() {
+    this.modoEditarTurno = true;
     this.nuevaFecha = this.turnoSeleccionado.fecha;
     this.nuevaHora = this.turnoSeleccionado.hora_inicio?.slice(0,5) || this.turnoSeleccionado.hora?.slice(0,5) || '';
     this.nuevoServicioId = this.turnoSeleccionado.servicio_id;
-    this.errorPostergar = '';
+    this.errorEditarTurno = '';
     this.cdr.detectChanges();
   }
 
-  async confirmarPostergar() {
+  async confirmarEditarTurno() {
     if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
-      this.errorPostergar = 'Completá todos los campos.';
+      this.errorEditarTurno = 'Completá todos los campos.';
       return;
     }
     const servicio = this.nuevoServicio;
@@ -128,7 +128,7 @@ export class DashboardComponent implements OnInit {
 
     const fechaHora = new Date(`${this.nuevaFecha}T${this.nuevaHora}`);
     if (fechaHora <= new Date()) {
-      this.errorPostergar = 'La nueva fecha y hora deben ser en el futuro.';
+      this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
       return;
     }
 
@@ -141,7 +141,7 @@ export class DashboardComponent implements OnInit {
       this.nuevaFecha, this.nuevaHora, horaFin, this.turnoSeleccionado.id
     );
     if (solapados.length > 0) {
-      this.errorPostergar = `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`;
+      this.errorEditarTurno = `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`;
       return;
     }
 
@@ -151,12 +151,12 @@ export class DashboardComponent implements OnInit {
       return this.nuevaHora >= hor.hora_inicio.slice(0,5) && horaFin <= hor.hora_fin.slice(0,5);
     });
     if (!dentroHorario) {
-      this.errorPostergar = 'El horario está fuera del horario de atención.';
+      this.errorEditarTurno = 'El horario está fuera del horario de atención.';
       return;
     }
 
-    this.postergando = true;
-    await this.supabase.postergarTurno(this.turnoSeleccionado.id, {
+    this.editandoTurno = true;
+    await this.supabase.editarTurno(this.turnoSeleccionado.id, {
       fecha: this.nuevaFecha,
       hora: this.nuevaHora,
       horaFin,
@@ -165,7 +165,7 @@ export class DashboardComponent implements OnInit {
       precio: servicio.precio,
       duracion_minutos: servicio.duracion_minutos
     });
-    this.postergando = false;
+    this.editandoTurno = false;
     await this.cargarDatos();
     this.cerrarPopup();
   }
