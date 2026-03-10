@@ -55,7 +55,9 @@
           <div *ngFor="let tel of clienteSeleccionado.telefonos" class="telefono-item">
             <span>{{ tel.telefono }}</span>
             <span *ngIf="tel.principal" class="badge-principal">principal</span>
-            <button class="btn-icon-sm" (click)="eliminarTelefono(tel)" title="Eliminar">🗑️</button>
+            <button class="btn-icon-sm"
+              *ngIf="!tel.principal"
+              (click)="eliminarTelefono(tel)" title="Eliminar">🗑️</button>
           </div>
           <div *ngIf="!clienteSeleccionado.telefonos?.length" class="vacio-sm">Sin teléfonos</div>
         </div>

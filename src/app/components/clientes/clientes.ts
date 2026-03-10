@@ -74,6 +74,10 @@ export class ClientesComponent implements OnInit {
     try {
       const tel = await this.supabase.agregarTelefono(this.clienteSeleccionado.id, this.nuevoTelefono.trim());
       this.clienteSeleccionado.telefonos = [...(this.clienteSeleccionado.telefonos || []), tel];
+      // Si es el único teléfono, actualizarlo en turnos
+      if (this.clienteSeleccionado.telefonos.length === 1) {
+        await this.supabase.actualizarTelefonoEnTurnos(this.clienteSeleccionado.id, this.nuevoTelefono.trim());
+      }
       this.nuevoTelefono = '';
       this.mostrarMensaje('✅ Teléfono agregado.');
     } catch (e) {
@@ -86,6 +90,9 @@ export class ClientesComponent implements OnInit {
     try {
       await this.supabase.eliminarTelefono(tel.id);
       this.clienteSeleccionado.telefonos = this.clienteSeleccionado.telefonos.filter((t: any) => t.id !== tel.id);
+      // Actualizar con el nuevo teléfono principal si queda alguno
+      const telPrincipal = this.clienteSeleccionado.telefonos?.[0]?.telefono || '';
+      await this.supabase.actualizarTelefonoEnTurnos(this.clienteSeleccionado.id, telPrincipal);
       this.mostrarMensaje('✅ Teléfono eliminado.');
     } catch (e) {
       this.mostrarError('❌ Error al eliminar el teléfono.');

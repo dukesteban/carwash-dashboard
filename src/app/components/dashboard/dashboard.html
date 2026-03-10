@@ -47,7 +47,7 @@
       <tbody>
         <tr *ngFor="let turno of turnosHoy" [class.vencido]="esVencido(turno)" (click)="abrirPopup(turno)" style="cursor:pointer">
           <td>{{ turno.hora?.slice(0,5) }}</td>
-          <td>{{ turno.cliente_nombre }}</td>
+          <td [style.color]="!turno.cliente_telefono ? '#dc2626' : ''" >{{ turno.cliente_nombre }}</td>
           <td>{{ turno.servicio_nombre }}</td>
           <td>${{ turno.precio | number }}</td>
           <td>
@@ -83,7 +83,7 @@
         <tr *ngFor="let turno of todosTurnos" [class.vencido]="esVencido(turno)" (click)="abrirPopup(turno)" style="cursor:pointer">
           <td>{{ turno.fecha }}</td>
           <td>{{ turno.hora?.slice(0,5) }}</td>
-          <td>{{ turno.cliente_nombre }}</td>
+          <td [style.color]="!turno.cliente_telefono ? '#dc2626' : ''" >{{ turno.cliente_nombre }}</td>
           <td>{{ turno.servicio_nombre }}</td>
           <td>${{ turno.precio | number }}</td>
           <td>

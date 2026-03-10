@@ -244,6 +244,14 @@ export class SupabaseService {
     return data;
   }
 
+  async actualizarTelefonoEnTurnos(clienteId: number, telefono: string) {
+    const { error } = await this.supabase
+      .from('turnos')
+      .update({ cliente_telefono: telefono })
+      .eq('cliente_id', clienteId);
+    if (error) throw error;
+  }
+
   async eliminarTelefono(id: number) {
     const { error } = await this.supabase
       .from('telefonos')
