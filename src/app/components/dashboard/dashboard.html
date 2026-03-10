@@ -39,11 +39,10 @@
           <th>Servicio</th>
           <th>Precio</th>
           <th>Estado</th>
-          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let turno of turnosHoy" [class.vencido]="esVencido(turno)">
+        <tr *ngFor="let turno of turnosHoy" [class.vencido]="esVencido(turno)" (click)="abrirPopup(turno)" style="cursor:pointer">
           <td>{{ turno.hora?.slice(0,5) }}</td>
           <td>{{ turno.cliente_nombre }}</td>
           <td>{{ turno.servicio_nombre }}</td>
@@ -53,17 +52,9 @@
               {{ esVencido(turno) ? 'vencido' : turno.estado }}
             </span>
           </td>
-          <td class="acciones" (click)="$event.stopPropagation()">
-            <button *ngIf="turno.estado !== 'atendido' && turno.estado !== 'cancelado'"
-              class="btn-accion" (click)="cambiarEstado(turno.id, 'atendido')" title="Atendido">✅</button>
-            <button *ngIf="turno.estado !== 'atendido' && turno.estado !== 'cancelado'"
-              class="btn-accion" (click)="abrirPopup(turno); $event.stopPropagation()" title="Postergar">📅</button>
-            <button *ngIf="turno.estado !== 'cancelado' && turno.estado !== 'atendido'"
-              class="btn-accion" (click)="cambiarEstado(turno.id, 'cancelado')" title="Canceló">❌</button>
-          </td>
         </tr>
         <tr *ngIf="turnosHoy.length === 0">
-          <td colspan="6" class="vacio">No hay turnos para hoy</td>
+          <td colspan="5" class="vacio">No hay turnos para hoy</td>
         </tr>
       </tbody>
     </table>
@@ -118,7 +109,7 @@
           <div class="detalle-bloque">
             <div class="popup-fila"><span class="popup-label">Cliente</span><span>{{ turnoSeleccionado.cliente_nombre }}</span></div>
             <div class="popup-fila"><span class="popup-label">Servicio</span><span>{{ turnoSeleccionado.servicio_nombre }}</span></div>
-            <div class="popup-fila"><span class="popup-label">Fecha</span><span>{{ turnoSeleccionado.fecha }}</span></div>
+            <div class="popup-fila"><span class="popup-label">Fecha</span><span>{{ formatearFecha(turnoSeleccionado.fecha) }}</span></div>
             <div class="popup-fila"><span class="popup-label">Hora</span><span>{{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }}</span></div>
             <div class="popup-fila"><span class="popup-label">Duración</span><span>{{ turnoSeleccionado.duracion_minutos || 45 }} min</span></div>
             <div class="popup-fila"><span class="popup-label">Precio</span><span>${{ turnoSeleccionado.precio | number }}</span></div>
@@ -128,10 +119,12 @@
         <div class="popup-acciones">
           <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
             class="btn-atendido" (click)="cambiarEstadoPopup('atendido')">✅ Atendido</button>
+          <button *ngIf="turnoSeleccionado.estado !== 'cancelado' && turnoSeleccionado.estado !== 'atendido'"
+            class="btn-cancelado" (click)="cambiarEstadoPopup('cancelado')">❌ Canceló</button>
           <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
             class="btn-postergar" (click)="activarPostergar()">📅 Postergar</button>
-          <button *ngIf="turnoSeleccionado.estado !== 'cancelado'"
-            class="btn-cancelado" (click)="cambiarEstadoPopup('cancelado')">❌ Canceló</button>
+          <button *ngIf="turnoSeleccionado.estado === 'atendido' || turnoSeleccionado.estado === 'cancelado'"
+            class="btn-editar" (click)="cambiarEstadoPopup('pendiente')">↩️ Volver a Pendiente</button>
         </div>
       </div>
 

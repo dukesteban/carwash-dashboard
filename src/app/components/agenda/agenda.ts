@@ -146,6 +146,12 @@ export class AgendaComponent implements OnInit {
     return `${d}/${m}`;
   }
 
+  formatearFechaTurno(fecha: string): string {
+    if (!fecha) return '';
+    const [y, m, d] = fecha.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
   esHoy(fecha: Date): boolean {
     const hoy = new Date().toISOString().split('T')[0];
     return fecha.toISOString().split('T')[0] === hoy;

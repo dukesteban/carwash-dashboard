@@ -160,4 +160,10 @@ export class DashboardComponent implements OnInit {
   formatearHora(hora: string): string {
     return hora ? hora.slice(0, 5) : '';
   }
+
+  formatearFecha(fecha: string): string {
+    if (!fecha) return '';
+    const [y, m, d] = fecha.split('-');
+    return `${d}/${m}/${y}`;
+  }
 }

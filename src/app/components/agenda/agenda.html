@@ -137,7 +137,7 @@
           </div>
           <div class="popup-fila">
             <span class="popup-label">Fecha</span>
-            <span>{{ turnoSeleccionado.fecha }}</span>
+            <span>{{ formatearFechaTurno(turnoSeleccionado.fecha) }}</span>
           </div>
           <div class="popup-fila">
             <span class="popup-label">Hora</span>
@@ -160,10 +160,12 @@
       <div class="popup-acciones">
         <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
           class="btn-atendido" (click)="cambiarEstado('atendido')">✅ Atendido</button>
+        <button *ngIf="turnoSeleccionado.estado !== 'cancelado' && turnoSeleccionado.estado !== 'atendido'"
+          class="btn-cancelado" (click)="cambiarEstado('cancelado')">❌ Canceló</button>
         <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
           class="btn-postergar" (click)="activarPostergar()">📅 Postergar</button>
-        <button *ngIf="turnoSeleccionado.estado !== 'cancelado'"
-          class="btn-cancelado" (click)="cambiarEstado('cancelado')">❌ Canceló</button>
+        <button *ngIf="turnoSeleccionado.estado === 'atendido' || turnoSeleccionado.estado === 'cancelado'"
+          class="btn-editar" (click)="cambiarEstado('pendiente')">↩️ Volver a Pendiente</button>
       </div>
     </div>
 
