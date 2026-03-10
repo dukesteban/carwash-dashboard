@@ -31,6 +31,17 @@ export class DashboardComponent implements OnInit {
   nuevaHora = '';
   nuevoServicioId: number | null = null;
 
+  // Nuevo turno
+  mostrarModalNuevoTurno = false;
+  clientesBuscados: any[] = [];
+  clienteSeleccionadoNuevo: any = null;
+  busquedaCliente = '';
+  nuevoTurnoFecha = '';
+  nuevoTurnoHora = '';
+  nuevoTurnoServicioId: number | null = null;
+  guardandoNuevoTurno = false;
+  errorNuevoTurno = '';
+
   get nuevoServicio(): any {
     return this.servicios.find(s => s.id == this.nuevoServicioId) || null;
   }
@@ -165,5 +176,101 @@ export class DashboardComponent implements OnInit {
     if (!fecha) return '';
     const [y, m, d] = fecha.split('-');
     return `${d}/${m}/${y}`;
+  }
+
+  get nuevoTurnoServicio(): any {
+    return this.servicios.find(s => s.id == this.nuevoTurnoServicioId) || null;
+  }
+
+  async buscarClientesNuevo() {
+    if (!this.busquedaCliente.trim()) {
+      this.clientesBuscados = [];
+      return;
+    }
+    this.clientesBuscados = await this.supabase.buscarClientes(this.busquedaCliente);
+    this.cdr.detectChanges();
+  }
+
+  seleccionarClienteNuevo(cliente: any) {
+    this.clienteSeleccionadoNuevo = cliente;
+    this.busquedaCliente = cliente.nombre;
+    this.clientesBuscados = [];
+    this.cdr.detectChanges();
+  }
+
+  abrirModalNuevoTurno() {
+    this.mostrarModalNuevoTurno = true;
+    this.clienteSeleccionadoNuevo = null;
+    this.busquedaCliente = '';
+    this.clientesBuscados = [];
+    this.nuevoTurnoFecha = '';
+    this.nuevoTurnoHora = '';
+    this.nuevoTurnoServicioId = null;
+    this.errorNuevoTurno = '';
+    if (!this.servicios.length) this.supabase.getServicios().then(s => { this.servicios = s; this.cdr.detectChanges(); });
+    if (!this.horarios.length) this.supabase.getHorarios().then(h => { this.horarios = h; this.cdr.detectChanges(); });
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalNuevoTurno() {
+    this.mostrarModalNuevoTurno = false;
+    this.cdr.detectChanges();
+  }
+
+  async guardarNuevoTurno() {
+    if (!this.clienteSeleccionadoNuevo) { this.errorNuevoTurno = 'Seleccioná un cliente.'; return; }
+    if (!this.nuevoTurnoFecha) { this.errorNuevoTurno = 'Ingresá una fecha.'; return; }
+    if (!this.nuevoTurnoHora) { this.errorNuevoTurno = 'Ingresá una hora.'; return; }
+    if (!this.nuevoTurnoServicioId) { this.errorNuevoTurno = 'Seleccioná un servicio.'; return; }
+
+    const servicio = this.nuevoTurnoServicio;
+    if (!servicio) return;
+
+    // Calcular hora fin
+    const fechaHora = new Date(`${this.nuevoTurnoFecha}T${this.nuevoTurnoHora}`);
+    const fin = new Date(fechaHora);
+    fin.setMinutes(fin.getMinutes() + servicio.duracion_minutos);
+    const horaFin = `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
+
+    // Validar solapamiento
+    const solapados = await this.supabase.getTurnosSolapados(
+      this.nuevoTurnoFecha, this.nuevoTurnoHora, horaFin, 0
+    );
+    if (solapados.length > 0) {
+      this.errorNuevoTurno = `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`;
+      return;
+    }
+
+    // Validar horario de atención
+    const diaISO = new Date(this.nuevoTurnoFecha + 'T12:00:00').getDay();
+    const horariosDia = this.horarios.filter((hor: any) => hor.dia_semana === diaISO && hor.activo);
+    const dentroHorario = horariosDia.some((hor: any) =>
+      this.nuevoTurnoHora >= hor.hora_inicio.slice(0,5) && horaFin <= hor.hora_fin.slice(0,5)
+    );
+    if (!dentroHorario) {
+      this.errorNuevoTurno = 'El horario está fuera del horario de atención.';
+      return;
+    }
+
+    const telefono = this.clienteSeleccionadoNuevo.telefonos?.[0]?.telefono || '';
+
+    this.guardandoNuevoTurno = true;
+    await this.supabase.crearTurnoManual({
+      cliente_id: this.clienteSeleccionadoNuevo.id,
+      cliente_nombre: this.clienteSeleccionadoNuevo.nombre,
+      cliente_telefono: telefono,
+      fecha: this.nuevoTurnoFecha,
+      hora: this.nuevoTurnoHora,
+      hora_inicio: this.nuevoTurnoHora,
+      hora_fin: horaFin,
+      servicio_id: servicio.id,
+      servicio_nombre: servicio.nombre,
+      precio: servicio.precio,
+      duracion_minutos: servicio.duracion_minutos,
+      estado: 'pendiente'
+    });
+    this.guardandoNuevoTurno = false;
+    await this.cargarDatos();
+    this.cerrarModalNuevoTurno();
   }
 }

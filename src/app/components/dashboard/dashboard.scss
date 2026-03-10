@@ -257,3 +257,49 @@ tr.vencido td { background: #fff7ed; }
   border-radius: 8px;
   margin-top: 8px;
 }
+
+.popup-grande {
+  max-width: 460px;
+}
+
+.dropdown-clientes {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-top: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  &:hover { background: #f8fafc; }
+}
+
+.dropdown-nombre { font-weight: 600; color: #1e293b; }
+.dropdown-tel { color: #94a3b8; }
+
+.cliente-seleccionado {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #166534;
+  background: #dcfce7;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.btn-primary {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 500;
+  &:hover { background: #2563eb; }
+}

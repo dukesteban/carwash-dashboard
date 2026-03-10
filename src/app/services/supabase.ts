@@ -82,6 +82,26 @@ export class SupabaseService {
     return data;
   }
 
+  async crearTurnoManual(turno: any) {
+    const { data, error } = await this.supabase
+      .from('turnos')
+      .insert(turno)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async buscarClientes(query: string) {
+    const { data, error } = await this.supabase
+      .from('clientes')
+      .select('*, telefonos(*)')
+      .ilike('nombre', `%${query}%`)
+      .limit(5);
+    if (error) throw error;
+    return data;
+  }
+
   // CONFIGURACION
   async getConfiguracion() {
     const { data, error } = await this.supabase

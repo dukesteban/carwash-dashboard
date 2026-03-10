@@ -29,7 +29,10 @@
   <div class="seccion">
     <div class="seccion-header">
       <h3>Turnos de hoy</h3>
-      <button class="btn-secondary" (click)="cargarDatos()">🔄 Actualizar</button>
+      <div style="display:flex; gap:8px">
+        <button class="btn-primary" (click)="abrirModalNuevoTurno()">📅 Nuevo turno</button>
+        <button class="btn-secondary" (click)="cargarDatos()">🔄 Actualizar</button>
+      </div>
     </div>
     <table class="tabla">
       <thead>
@@ -154,6 +157,67 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- MODAL NUEVO TURNO -->
+  <div *ngIf="mostrarModalNuevoTurno" class="popup-overlay" (click)="cerrarModalNuevoTurno()">
+    <div class="popup popup-grande" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3>Nuevo turno</h3>
+        <button class="btn-cerrar" (click)="cerrarModalNuevoTurno()">✕</button>
+      </div>
+      <div class="popup-body">
+
+        <!-- Cliente -->
+        <div class="campo">
+          <label>Cliente</label>
+          <input type="text" [(ngModel)]="busquedaCliente"
+            (input)="buscarClientesNuevo()"
+            placeholder="Buscar cliente..." />
+          <div *ngIf="clientesBuscados.length > 0" class="dropdown-clientes">
+            <div *ngFor="let c of clientesBuscados"
+              class="dropdown-item"
+              (click)="seleccionarClienteNuevo(c)">
+              <span class="dropdown-nombre">{{ c.nombre }}</span>
+              <span class="dropdown-tel">{{ c.telefonos?.[0]?.telefono }}</span>
+            </div>
+          </div>
+          <div *ngIf="clienteSeleccionadoNuevo" class="cliente-seleccionado">
+            ✅ {{ clienteSeleccionadoNuevo.nombre }}
+          </div>
+        </div>
+
+        <!-- Servicio -->
+        <div class="campo">
+          <label>Servicio</label>
+          <select [(ngModel)]="nuevoTurnoServicioId">
+            <option [value]="null" disabled>Seleccioná un servicio</option>
+            <option *ngFor="let s of servicios" [value]="s.id">
+              {{ s.nombre }} — ${{ s.precio | number }} ({{ s.duracion_minutos }} min)
+            </option>
+          </select>
+        </div>
+
+        <!-- Fecha y hora -->
+        <div class="campo">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="nuevoTurnoFecha" />
+        </div>
+        <div class="campo">
+          <label>Hora</label>
+          <input type="time" [(ngModel)]="nuevoTurnoHora" />
+        </div>
+
+        <div *ngIf="errorNuevoTurno" class="error-msg">{{ errorNuevoTurno }}</div>
+
+      </div>
+      <div class="popup-acciones">
+        <button class="btn-atendido" (click)="guardarNuevoTurno()" [disabled]="guardandoNuevoTurno">
+          {{ guardandoNuevoTurno ? 'Guardando...' : '💾 Guardar turno' }}
+        </button>
+        <button class="btn-cancelado" (click)="cerrarModalNuevoTurno()">↩️ Cancelar</button>
+      </div>
     </div>
   </div>
 </div>
