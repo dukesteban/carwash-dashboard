@@ -33,21 +33,28 @@ export class GananciasComponent implements OnInit {
   }
 
   getRango(): { desde: string, hasta: string } {
+    const formatLocal = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
     if (this.vista === 'dia') {
-      const d = this.fechaActual.toISOString().split('T')[0];
+      const d = formatLocal(this.fechaActual);
       return { desde: d, hasta: d };
     } else {
       const y = this.fechaActual.getFullYear();
       const m = this.fechaActual.getMonth();
-      const desde = new Date(y, m, 1).toISOString().split('T')[0];
-      const hasta = new Date(y, m + 1, 0).toISOString().split('T')[0];
+      const desde = formatLocal(new Date(y, m, 1));
+      const hasta = formatLocal(new Date(y, m + 1, 0));
       return { desde, hasta };
     }
   }
 
   // STATS
   get totalGanancias(): number {
-    return this.turnos.reduce((sum, t) => sum + (t.precio || 0), 0);
+    return this.turnos.reduce((sum, t) => sum + (Number(t.precio) || 0), 0);
   }
 
   get totalAtendidos(): number {
@@ -115,7 +122,7 @@ export class GananciasComponent implements OnInit {
     this.turnos.filter(t => t.estado === 'atendido').forEach(t => {
       if (!mapa[t.servicio_nombre]) mapa[t.servicio_nombre] = { cantidad: 0, total: 0 };
       mapa[t.servicio_nombre].cantidad++;
-      mapa[t.servicio_nombre].total += t.precio || 0;
+      mapa[t.servicio_nombre].total += Number(t.precio) || 0;
     });
     return Object.entries(mapa)
       .map(([nombre, v]) => ({ nombre, ...v }))
