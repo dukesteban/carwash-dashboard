@@ -10,13 +10,16 @@ import { SupabaseService } from './services/supabase';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
+
 export class App implements OnInit {
-  nombreNegocio = 'CarWash';
+  nombreNegocio = localStorage.getItem('nombre_negocio') || 'Turnos-Dashboard';
 
   constructor(private supabase: SupabaseService) {}
 
   async ngOnInit() {
     const config = await this.supabase.getConfiguracion();
-    this.nombreNegocio = config.find((c: any) => c.clave === 'nombre_negocio')?.valor || 'CarWash';
+    const nombre = config.find((c: any) => c.clave === 'nombre_negocio')?.valor || 'Turnos';
+    this.nombreNegocio = nombre;
+    localStorage.setItem('nombre_negocio', nombre);
   }
 }
