@@ -1,6 +1,6 @@
 {
-  "name": "CarWash",
-  "short_name": "CarWash",
+  "name": "Turnos-dashboard",
+  "short_name": "Turnos-db",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
