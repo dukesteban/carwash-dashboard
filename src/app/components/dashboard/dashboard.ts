@@ -206,6 +206,12 @@ export class DashboardComponent implements OnInit {
     return `${d}/${m}/${y}`;
   }
 
+  formatearFechaSinAnio(fecha: string): string {
+    if (!fecha) return '';
+    const [y, m, d] = fecha.split('-');
+    return `${d}/${m}`;
+  }
+  
   get nuevoTurnoServicio(): any {
     return this.servicios.find(s => s.id == this.nuevoTurnoServicioId) || null;
   }

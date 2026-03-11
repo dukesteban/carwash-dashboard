@@ -175,15 +175,15 @@
     <div *ngIf="modoEditarTurno">
       <div class="popup-body">
         <div class="campo">
-          <label>Nueva fecha</label>
+          <label>Nueva Fecha</label>
           <input type="date" [(ngModel)]="nuevaFecha" />
         </div>
         <div class="campo">
-          <label>Nueva hora</label>
+          <label>Nueva Hora</label>
           <input type="time" [(ngModel)]="nuevaHora" />
         </div>
         <div class="campo">
-          <label>Servicio</label>
+          <label>Nuevo Servicio</label>
           <select [(ngModel)]="nuevoServicioId">
             <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombre }} — ${{ s.precio | number }}</option>
           </select>
