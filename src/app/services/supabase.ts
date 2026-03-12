@@ -270,6 +270,21 @@ export class SupabaseService {
     return data;
   }
 
+  async verificarNombreDuplicado(nombre: string, excludeId?: number): Promise<boolean> {
+    let query = this.supabase
+      .from('clientes')
+      .select('id')
+      .ilike('nombre', nombre);
+    if (excludeId) query = query.neq('id', excludeId);
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data?.length ?? 0) > 0;
+  }
+
+  normalizarNombre(nombre: string): string {
+    return nombre.trim().toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  }
+
     // GANANCIAS
   async getGanancias(desde: string, hasta: string) {
     const { data, error } = await this.supabase

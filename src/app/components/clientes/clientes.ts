@@ -58,10 +58,19 @@ export class ClientesComponent implements OnInit {
   }
 
   async guardarNombre() {
+    const nombreNorm = this.supabase.normalizarNombre(this.clienteSeleccionado.nombre);
+    this.clienteSeleccionado.nombre = nombreNorm;
+
+    const duplicado = await this.supabase.verificarNombreDuplicado(nombreNorm, this.clienteSeleccionado.id);
+    if (duplicado) {
+      this.mostrarError('❌ Ya existe un cliente con ese nombre.');
+      return;
+    }
+
     try {
-      await this.supabase.updateCliente(this.clienteSeleccionado.id, this.clienteSeleccionado.nombre);
+      await this.supabase.updateCliente(this.clienteSeleccionado.id, nombreNorm);
       const idx = this.clientes.findIndex(c => c.id === this.clienteSeleccionado.id);
-      if (idx >= 0) this.clientes[idx].nombre = this.clienteSeleccionado.nombre;
+      if (idx >= 0) this.clientes[idx].nombre = nombreNorm;
       this.clienteSeleccionado.editando = false;
       this.mostrarMensaje('✅ Nombre actualizado.');
     } catch (e) {

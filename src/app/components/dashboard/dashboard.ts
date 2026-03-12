@@ -310,8 +310,17 @@ export class DashboardComponent implements OnInit {
 
   async crearYSeleccionarCliente() {
     if (!this.nombreNuevoCliente.trim()) return;
+
+    const nombreNorm = this.supabase.normalizarNombre(this.nombreNuevoCliente);
+
+    const duplicado = await this.supabase.verificarNombreDuplicado(nombreNorm);
+    if (duplicado) {
+      this.errorNuevoTurno = '❌ Ya existe un cliente con ese nombre.';
+      return;
+    }
+
     try {
-      const cliente = await this.supabase.crearCliente(this.nombreNuevoCliente.trim());
+      const cliente = await this.supabase.crearCliente(nombreNorm);
       this.seleccionarClienteNuevo({ ...cliente, telefonos: [] });
       this.mostrarFormNuevoCliente = false;
       this.nombreNuevoCliente = '';
