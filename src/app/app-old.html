@@ -1,5 +1,5 @@
-<nav class="navbar" *ngIf="isLoggedIn">
-  <div class="navbar-brand">{{ nombreNegocio }}</div>
+<nav class="navbar">
+  <div class="navbar-brand"> {{ nombreNegocio }}</div>
   <div class="navbar-links">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
       <span class="icono">📋</span><span class="texto"> Turnos</span>
@@ -19,7 +19,6 @@
     <a routerLink="/configuracion" routerLinkActive="active">
       <span class="icono">⚙️</span><span class="texto"> Config</span>
     </a>
-    <button class="btn-logout" (click)="logout()" title="Cerrar sesión">🚪</button>
   </div>
 </nav>
 
@@ -55,7 +54,6 @@
   .navbar-links {
     display: flex;
     gap: 4px;
-    align-items: center;
   }
 
   .navbar-links a {
@@ -70,19 +68,6 @@
 
   .navbar-links a:hover { color: white; background: #334155; }
   .navbar-links a.active { color: white; background: #3b82f6; }
-
-  .btn-logout {
-    background: none;
-    border: none;
-    color: #94a3b8;
-    font-size: 1.1rem;
-    padding: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-left: 4px;
-  }
-  .btn-logout:hover { color: white; background: #334155; }
 
   .main-content { min-height: calc(100vh - 56px); }
 

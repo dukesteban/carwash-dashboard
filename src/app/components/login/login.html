@@ -1,0 +1,35 @@
+<div class="login-page">
+  <div class="login-card">
+
+    <div class="login-logo">🚗</div>
+    <h1 class="login-titulo">Turnos</h1>
+    <p class="login-subtitulo">Ingresá para continuar</p>
+
+    <div *ngIf="error" class="login-error">{{ error }}</div>
+
+    <div class="campo">
+      <label>Usuario</label>
+      <input
+        type="text"
+        [(ngModel)]="usuario"
+        placeholder="admin"
+        (keyup.enter)="login()"
+        autocomplete="username" />
+    </div>
+
+    <div class="campo">
+      <label>Contraseña</label>
+      <input
+        type="password"
+        [(ngModel)]="password"
+        placeholder="••••••••"
+        (keyup.enter)="login()"
+        autocomplete="current-password" />
+    </div>
+
+    <button class="btn-login" (click)="login()" [disabled]="cargando">
+      {{ cargando ? 'Ingresando...' : 'Ingresar' }}
+    </button>
+
+  </div>
+</div>

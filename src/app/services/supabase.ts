@@ -81,6 +81,17 @@ export class SupabaseService {
     if (error) throw error;
     return data;
   }
+  
+  async verificarUsuario(usuario: string, passwordHash: string): Promise<boolean> {
+    const { data, error } = await this.supabase
+      .from('usuarios')
+      .select('id')
+      .eq('usuario', usuario)
+      .eq('password_hash', passwordHash)
+      .maybeSingle();
+    if (error) return false;
+    return !!data;
+  }
 
   async crearTurnoManual(turno: any) {
     const { data, error } = await this.supabase

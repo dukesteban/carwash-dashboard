@@ -5,13 +5,16 @@ import { AgendaComponent } from './components/agenda/agenda';
 import { ServiciosComponent } from './components/servicios/servicios';
 import { ClientesComponent } from './components/clientes/clientes';
 import { GananciasComponent } from './components/ganancias/ganancias';
+import { LoginComponent } from './components/login/login';
+import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
-  { path: '', component: DashboardComponent },
-  { path: 'agenda', component: AgendaComponent },
-  { path: 'ganancias', component: GananciasComponent },
-  { path: 'servicios', component: ServiciosComponent },
-  { path: 'clientes', component: ClientesComponent },
-  { path: 'configuracion', component: ConfiguracionComponent },
+  { path: 'login', component: LoginComponent },
+  { path: '', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'agenda', component: AgendaComponent, canActivate: [authGuard] },
+  { path: 'ganancias', component: GananciasComponent, canActivate: [authGuard] },
+  { path: 'servicios', component: ServiciosComponent, canActivate: [authGuard] },
+  { path: 'clientes', component: ClientesComponent, canActivate: [authGuard] },
+  { path: 'configuracion', component: ConfiguracionComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];
