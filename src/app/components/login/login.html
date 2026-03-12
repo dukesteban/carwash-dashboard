@@ -1,8 +1,8 @@
 <div class="login-page">
   <div class="login-card">
 
-    <div class="login-logo">🚗</div>
-    <h1 class="login-titulo">Turnos</h1>
+    <img src="assets/icon.png" alt="logo" class="login-logo-img" />
+    <h1 class="login-titulo">{{ nombreNegocio }}</h1>
     <p class="login-subtitulo">Ingresá para continuar</p>
 
     <div *ngIf="error" class="login-error">{{ error }}</div>
@@ -12,7 +12,7 @@
       <input
         type="text"
         [(ngModel)]="usuario"
-        placeholder="admin"
+        placeholder="usuario"
         (keyup.enter)="login()"
         autocomplete="username" />
     </div>
@@ -22,7 +22,7 @@
       <input
         type="password"
         [(ngModel)]="password"
-        placeholder="••••••••"
+        placeholder="Contraseña"
         (keyup.enter)="login()"
         autocomplete="current-password" />
     </div>

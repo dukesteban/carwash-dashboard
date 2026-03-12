@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,17 +12,23 @@ import { SupabaseService } from '../../services/supabase';
   templateUrl: './login.html',
   styleUrls: ['./login.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   usuario = '';
   password = '';
   error = '';
   cargando = false;
+  nombreNegocio = '';
 
   constructor(
     private auth: AuthService,
     private supabase: SupabaseService,
     private router: Router
   ) {}
+
+  async ngOnInit() {
+    const config = await this.supabase.getConfiguracion();
+    this.nombreNegocio = config.find((c: any) => c.clave === 'nombre_negocio')?.valor || 'Turnos';
+  }
 
   async login() {
     if (!this.usuario.trim() || !this.password.trim()) {
