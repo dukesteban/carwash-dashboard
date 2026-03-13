@@ -150,7 +150,9 @@ export class DashboardComponent implements OnInit {
     const servicio = this.nuevoServicio;
     if (!servicio) return;
 
+    // Validar que no sea en el pasado — solo si el turno original es futuro
     const fechaHora = new Date(`${this.nuevaFecha}T${this.nuevaHora}`);
+    /*
     const turnoOriginalFecha = new Date(`${this.turnoSeleccionado.fecha}T${this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora}`);
     if (turnoOriginalFecha > new Date()) {
       if (fechaHora <= new Date()) {
@@ -158,12 +160,15 @@ export class DashboardComponent implements OnInit {
         return;
       }
     }
+    */
 
+    // Calcular hora fin
     const [h, m] = this.nuevaHora.split(':').map(Number);
     const fin = new Date(fechaHora);
     fin.setMinutes(fin.getMinutes() + servicio.duracion_minutos);
     const horaFin = `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
 
+    // Validar solapamiento
     const solapados = await this.supabase.getTurnosSolapados(
       this.nuevaFecha, this.nuevaHora, horaFin, this.turnoSeleccionado.id
     );
@@ -175,6 +180,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    // Validar horario de atención
     const diaISO = new Date(this.nuevaFecha + 'T12:00:00').getDay();
     const horariosDia = this.horarios.filter((hor: any) => hor.dia_semana === diaISO && hor.activo);
     const dentroHorario = horariosDia.some((hor: any) => {

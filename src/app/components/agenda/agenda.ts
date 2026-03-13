@@ -290,6 +290,7 @@ export class AgendaComponent implements OnInit {
 
     // Validar que no sea en el pasado — solo si el turno original es futuro
     const fechaHora = new Date(`${this.nuevaFecha}T${this.nuevaHora}`);
+    /*
     const turnoOriginalFecha = new Date(`${this.turnoSeleccionado.fecha}T${this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora}`);
     if (turnoOriginalFecha > new Date()) {
       if (fechaHora <= new Date()) {
@@ -297,6 +298,7 @@ export class AgendaComponent implements OnInit {
         return;
       }
     }
+    */
 
     // Calcular hora fin
     const [h, m] = this.nuevaHora.split(':').map(Number);
