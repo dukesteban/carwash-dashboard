@@ -33,7 +33,7 @@
       </div>
 
       <!-- Columna de turnos -->
-      <div class="col-turnos" [style.height.px]="alturaTotal">
+      <div class="col-turnos" [style.min-width]="anchoPuestos" [style.height.px]="alturaTotal">
         <!-- Líneas de hora -->
         <div *ngFor="let hora of horasEtiquetas"
           class="linea-hora"
@@ -62,6 +62,7 @@
         <div class="col-horas-header"></div>
         <div *ngFor="let dia of diasDeSemana"
           class="col-dia-header"
+          [style.min-width]="anchoPuestos"
           [class.hoy]="esHoy(dia)">
           <div class="dia-nombre">{{ diasSemana[dia.getDay()] }}</div>
           <div class="dia-fecha" [class.dia-fecha-hoy]="esHoy(dia)">{{ formatearFechaCorta(dia) }}</div>
@@ -80,7 +81,7 @@
         </div>
 
         <!-- Columnas por día -->
-        <div *ngFor="let dia of diasDeSemana" class="col-dia-cuerpo" [style.height.px]="alturaTotal">
+        <div *ngFor="let dia of diasDeSemana" class="col-dia-cuerpo" [style.min-width]="anchoPuestos" [style.height.px]="alturaTotal">
           <!-- Líneas de hora -->
           <div *ngFor="let hora of horasEtiquetas"
             class="linea-hora"

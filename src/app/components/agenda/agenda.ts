@@ -27,6 +27,7 @@ export class AgendaComponent implements OnInit {
 
   turnoSeleccionado: any = null;
   mostrarPopup = false;
+  puestosXTurno = 1;
   
   // Editar/Postergar
   modoEditarTurno = false;
@@ -43,6 +44,7 @@ export class AgendaComponent implements OnInit {
   async ngOnInit() {
     await this.cargarHorarios();
     await this.cargarTurnos();
+    this.puestosXTurno = await this.supabase.getPuestosXTurno();
   }
 
   async cargarHorarios() {
@@ -135,12 +137,13 @@ export class AgendaComponent implements OnInit {
     if (columnas?.has(turno.id)) {
       const { col, total } = columnas.get(turno.id)!;
       if (total === 1) {
-        width = 'calc(100% - 12px)';
+        width = 'calc(100% - 10px)';
         left = '0px';
-      } else {
-        width = `calc(${100 / total}% - 6px)`;
-        left = `calc(${(100 / total) * col}% + 3px)`;
-      }
+        } else {
+          const pct = 100 / total;
+          width = `calc(${pct}% - 10px)`;
+          left = `calc(${pct * col}% + 0px)`;
+        }
     }
 
     return {
@@ -149,6 +152,10 @@ export class AgendaComponent implements OnInit {
       left,
       width
     };
+  }
+
+  get anchoPuestos(): string {
+    return `${this.puestosXTurno * 80}px`;
   }
 
   // VISTA DÍA
