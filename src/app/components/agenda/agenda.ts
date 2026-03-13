@@ -123,7 +123,7 @@ export class AgendaComponent implements OnInit {
     return resultado;
   }
 
-  posicionTurno(turno: any, columnas?: Map<number, { col: number, total: number }>): { top: number, height: number, left: string, width: string } {
+  posicionTurno(turno: any, columnas?: Map<number, { col: number, total: number }>, mini = false): { top: number, height: number, left: string, width: string } {
     const inicio = turno.hora_inicio || turno.hora || '00:00';
     const h = parseInt(inicio.slice(0, 2));
     const m = parseInt(inicio.slice(3, 5));
@@ -145,7 +145,7 @@ export class AgendaComponent implements OnInit {
 
     return {
       top: minutosDesdeInicio * PX_POR_MINUTO + 8,
-      height: Math.max(duracion * PX_POR_MINUTO, 24) - 9,
+      height: Math.max(duracion * PX_POR_MINUTO, 24) + (mini ? -7 : -9),
       left,
       width
     };

@@ -103,10 +103,10 @@
       *ngFor="let turno of turnos"
       [class]="mini ? 'bloque-turno-semana' : 'bloque-turno'"
       [ngClass]="getColorTurno(turno)"
-      [style.top.px]="posicionTurno(turno, calcularColumnas(turnos)).top"
-      [style.height.px]="posicionTurno(turno, calcularColumnas(turnos)).height"
-      [style.left]="posicionTurno(turno, calcularColumnas(turnos)).left"
-      [style.width]="posicionTurno(turno, calcularColumnas(turnos)).width"
+      [style.top.px]="posicionTurno(turno, calcularColumnas(turnos), !!mini).top"
+      [style.height.px]="posicionTurno(turno, calcularColumnas(turnos), !!mini).height"
+      [style.left]="posicionTurno(turno, calcularColumnas(turnos), !!mini).left"
+      [style.width]="posicionTurno(turno, calcularColumnas(turnos), !!mini).width"
       (click)="abrirPopup(turno)">
       <div *ngIf="!mini" class="turno-header">
         <span class="turno-hora">{{ formatearHora(turno.hora_inicio || turno.hora) }}</span>
