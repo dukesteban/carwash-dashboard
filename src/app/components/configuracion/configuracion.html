@@ -1,91 +1,83 @@
 <div class="config-page">
-  <!--
-  <div class="config-header">
-    <h2>⚙️ Configuración del negocio</h2>
-  </div>
-  -->
 
-  <!-- Mensaje feedback -->
-  <div *ngIf="mensaje" class="alerta exito">{{ mensaje }}</div>
-  <div *ngIf="mensajeError" class="alerta error">{{ mensajeError }}</div>
-
-  <!-- Datos del negocio -->
-  <div class="seccion">
-    <div class="seccion-header">
-      <h3>Datos del negocio</h3>
+  <!-- ── DATOS DEL NEGOCIO ── -->
+  <div class="acordeon">
+    <div *ngIf="mensajeDatos" class="alerta exito">{{ mensajeDatos }}</div>
+    <div *ngIf="mensajeErrorDatos" class="alerta error">{{ mensajeErrorDatos }}</div>
+    <div class="acordeon-header" (click)="acordeonDatos = !acordeonDatos">
+      <span>🏪 Datos del negocio</span>
+      <span class="chevron" [class.abierto]="acordeonDatos">›</span>
     </div>
-    <div class="campo">
-      <label>Nombre del negocio</label>
-      <input type="text" [(ngModel)]="nombreNegocio" [readonly]="!editandoDatos" placeholder="Ej: Lavadero El Brillo" />
-    </div>
-    <div class="campo">
-      <label>Descripción</label>
-      <input type="text" [(ngModel)]="descripcion" [readonly]="!editandoDatos" placeholder="Ej: Lavadero de autos premium" />
-    </div>
-    <div class="campo">
-      <label>Puestos por turno</label>
-      <input type="number" min="1" max="3" [(ngModel)]="puestosXTurno" [readonly]="!editandoDatos" />
-    </div>
-    <div class="botones-edicion">
-      <button *ngIf="!editandoDatos" class="btn-secondary" (click)="editandoDatos = true">✏️ Editar</button>
-      <button *ngIf="editandoDatos" class="btn-primary" (click)="guardarConfiguracion()" [disabled]="guardando">
-        {{ guardando ? 'Guardando...' : '💾 Guardar' }}
-      </button>
-      <button *ngIf="editandoDatos" class="btn-secondary" (click)="cancelarConfiguracion()">↩️ Cancelar</button>
-    </div>
-  </div>
-
-  <!-- Horarios de atención -->
-  <div class="seccion">
-    <div class="seccion-header">
-      <h3>Horarios de atención</h3>
-      <button class="btn-primary" (click)="mostrarFormHorario = !mostrarFormHorario">
-        {{ mostrarFormHorario ? '↩️ Cancelar' : '➕ Nuevo' }}
-      </button>
-    </div>
-
-    <!-- Formulario nuevo horario -->
-    <div *ngIf="mostrarFormHorario" class="form-nuevo-horario">
-      <div class="fila">
-        <div class="campo">
-          <label>Día</label>
-          <select [(ngModel)]="nuevoHorario.dia_semana">
-            <option *ngFor="let dia of diasSemana; let i = index" [value]="i">{{ dia }}</option>
-          </select>
-        </div>
-        <div class="campo">
-          <label>Desde</label>
-          <input type="time" [(ngModel)]="nuevoHorario.hora_inicio" />
-        </div>
-        <div class="campo">
-          <label>Hasta</label>
-          <input type="time" [(ngModel)]="nuevoHorario.hora_fin" />
-        </div>
-        <button class="btn-primary" (click)="agregarHorario()">➕ Agregar</button>
+    <div class="acordeon-body" [class.visible]="acordeonDatos">
+      <div class="campo">
+        <label>Nombre del negocio</label>
+        <input type="text" [(ngModel)]="nombreNegocio" [readonly]="!editandoDatos" placeholder="Nombre" />
+      </div>
+      <div class="campo">
+        <label>Descripción</label>
+        <input type="text" [(ngModel)]="descripcion" [readonly]="!editandoDatos" placeholder="Descripción" />
+      </div>
+      <div class="campo">
+        <label>Puestos por turno</label>
+        <input type="number" min="1" max="3" [(ngModel)]="puestosXTurno" [readonly]="!editandoDatos" />
+      </div>
+      <div class="botones-edicion">
+        <button *ngIf="!editandoDatos" class="btn-secondary" (click)="editandoDatos = true">✏️ Editar</button>
+        <button *ngIf="editandoDatos" class="btn-primary" (click)="guardarConfiguracion()" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : '💾 Guardar' }}
+        </button>
+        <button *ngIf="editandoDatos" class="btn-secondary" (click)="cancelarConfiguracion()">↩️ Cancelar</button>
       </div>
     </div>
+  </div>
 
-    <!-- Lista horarios -->
-    <div class="tabla-wrapper">
+  <!-- ── HORARIOS ── -->
+  <div class="acordeon">
+    <div *ngIf="mensajeHorarios" class="alerta exito">{{ mensajeHorarios }}</div>
+    <div *ngIf="mensajeErrorHorarios" class="alerta error">{{ mensajeErrorHorarios }}</div>
+    <div class="acordeon-header" (click)="acordeonHorarios = !acordeonHorarios">
+      <span>🕐 Horarios de atención</span>
+      <span class="chevron" [class.abierto]="acordeonHorarios">›</span>
+    </div>
+    <div class="acordeon-body" [class.visible]="acordeonHorarios">
+      <div class="seccion-header">
+        <span></span>
+        <button class="btn-primary" (click)="mostrarFormHorario = !mostrarFormHorario">
+          {{ mostrarFormHorario ? '↩️ Cancelar' : '➕ Nuevo horario' }}
+        </button>
+      </div>
+
+      <div *ngIf="mostrarFormHorario" class="form-nuevo-horario">
+        <div class="fila">
+          <div class="campo">
+            <label>Día</label>
+            <select [(ngModel)]="nuevoHorario.dia_semana">
+              <option *ngFor="let dia of diasSemana; let i = index" [value]="i">{{ dia }}</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Desde</label>
+            <input type="time" [(ngModel)]="nuevoHorario.hora_inicio" />
+          </div>
+          <div class="campo">
+            <label>Hasta</label>
+            <input type="time" [(ngModel)]="nuevoHorario.hora_fin" />
+          </div>
+          <button class="btn-primary" (click)="agregarHorario()">➕ Agregar</button>
+        </div>
+      </div>
+
       <table class="tabla-horarios">
         <thead>
           <tr>
-            <th>Día</th>
-            <th>Desde</th>
-            <th>Hasta</th>
-            <th>Activo</th>
-            <th>Acciones</th>
+            <th>Día</th><th>Desde</th><th>Hasta</th><th>Activo</th><th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let horario of horarios" [class.inactivo]="!horario.activo">
-            <td>{{ getNombreDiaConTurno(horario) }}</td>
-            <td>
-              <input type="time" [(ngModel)]="horario.hora_inicio" class="input-hora" [readonly]="!horario.editando" />
-            </td>
-            <td>
-              <input type="time" [(ngModel)]="horario.hora_fin" class="input-hora" [readonly]="!horario.editando" />
-            </td>
+            <td>{{ getNombreDia(horario.dia_semana) }}</td>
+            <td><input type="time" [(ngModel)]="horario.hora_inicio" class="input-hora" [readonly]="!horario.editando" /></td>
+            <td><input type="time" [(ngModel)]="horario.hora_fin" class="input-hora" [readonly]="!horario.editando" /></td>
             <td>
               <label class="toggle">
                 <input type="checkbox" [checked]="horario.activo" (change)="toggleHorario(horario)" />
@@ -93,10 +85,13 @@
               </label>
             </td>
             <td class="acciones">
-              <button *ngIf="!horario.editando" class="btn-save" (click)="horario.editando = true" title="Editar">✏️</button>
-              <button *ngIf="horario.editando" class="btn-save" (click)="guardarHorario(horario)" title="Guardar">💾</button>
-              <button *ngIf="horario.editando" class="btn-save" (click)="horario.editando = false" title="Cancelar">↩️</button>
-              <button class="btn-delete" (click)="eliminarHorario(horario.id)" title="Eliminar">🗑️</button>
+              <button *ngIf="!horario.editando" class="btn-icon" 
+                (click)="horario._hora_inicio_orig = horario.hora_inicio; horario._hora_fin_orig = horario.hora_fin; horario.editando = true" 
+                title="Editar">✏️
+              </button>
+              <button *ngIf="horario.editando" class="btn-icon" (click)="guardarHorario(horario)" title="Guardar">💾</button>
+              <button *ngIf="horario.editando" class="btn-icon" (click)="cancelarHorario(horario)" title="Cancelar">↩️</button>
+              <button class="btn-icon" (click)="eliminarHorario(horario.id)" title="Eliminar">🗑️</button>
             </td>
           </tr>
           <tr *ngIf="horarios.length === 0">
@@ -106,4 +101,115 @@
       </table>
     </div>
   </div>
+
+  <!-- ── SERVICIOS ── -->
+  <div class="acordeon">
+    <div *ngIf="mensajeServicios" class="alerta exito">{{ mensajeServicios }}</div>
+    <div *ngIf="mensajeErrorServicios" class="alerta error">{{ mensajeErrorServicios }}</div>
+    <div class="acordeon-header" (click)="acordeonServicios = !acordeonServicios">
+      <span>🛠️ Servicios</span>
+      <span class="chevron" [class.abierto]="acordeonServicios">›</span>
+    </div>
+    <div class="acordeon-body" [class.visible]="acordeonServicios">
+      <div class="seccion-header">
+        <span></span>
+        <button class="btn-primary" (click)="mostrarFormServicio = !mostrarFormServicio">
+          {{ mostrarFormServicio ? '↩️ Cancelar' : '➕ Nuevo servicio' }}
+        </button>
+      </div>
+
+      <div *ngIf="mostrarFormServicio" class="form-nuevo-horario">
+        <div class="fila">
+          <div class="campo">
+            <label>Nombre</label>
+            <input type="text" [(ngModel)]="nuevoServicio.nombre" placeholder="Ej: Lavado premium" />
+          </div>
+          <div class="campo">
+            <label>Precio ($)</label>
+            <input type="number" [(ngModel)]="nuevoServicio.precio" placeholder="15000" />
+          </div>
+          <div class="campo">
+            <label>Duración (min)</label>
+            <input type="number" [(ngModel)]="nuevoServicio.duracion_minutos" placeholder="60" />
+          </div>
+          <button class="btn-primary" (click)="agregarServicio()">➕ Agregar</button>
+        </div>
+      </div>
+
+      <div class="tabla-wrapper">
+        <table class="tabla-servicios">
+          <thead>
+            <tr><th>Nombre</th><th>Precio</th><th>Duración</th><th>Activo</th><th>Acciones</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let servicio of servicios" [class.inactivo]="!servicio.activo">
+              <td><input type="text" [(ngModel)]="servicio.nombre" class="input-inline input-nombre" [readonly]="!servicio.editando" /></td>
+              <td>
+                <div class="input-con-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" [(ngModel)]="servicio.precio" class="input-inline input-numero" [readonly]="!servicio.editando" />
+                </div>
+              </td>
+              <td>
+                <div class="input-con-suffix">
+                  <input type="number" [(ngModel)]="servicio.duracion_minutos" class="input-inline input-numero" [readonly]="!servicio.editando" />
+                  <span class="unidad">min</span>
+                </div>
+              </td>
+              <td>
+                <label class="toggle">
+                  <input type="checkbox" [checked]="servicio.activo" (change)="toggleServicio(servicio)" />
+                  <span class="slider"></span>
+                </label>
+              </td>
+              <td class="acciones">
+                <button *ngIf="!servicio.editando" class="btn-icon" (click)="servicio.editando = true" title="Editar">✏️</button>
+                <button *ngIf="servicio.editando" class="btn-icon" (click)="guardarServicio(servicio)" title="Guardar">💾</button>
+                <button *ngIf="servicio.editando" class="btn-icon" (click)="servicio.editando = false" title="Cancelar">↩️</button>
+                <button class="btn-icon" (click)="eliminarServicio(servicio.id)" title="Eliminar">🗑️</button>
+              </td>
+            </tr>
+            <tr *ngIf="servicios.length === 0">
+              <td colspan="5" class="vacio">No hay servicios configurados</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONTRASEÑA ── -->
+  <div class="acordeon">
+    <div class="acordeon-header" (click)="acordeonPassword = !acordeonPassword">
+      <span>🔐 Cambiar contraseña</span>
+      <span class="chevron" [class.abierto]="acordeonPassword">›</span>
+    </div>
+    <div class="acordeon-body" [class.visible]="acordeonPassword">
+      <div *ngIf="mensajePassword" class="alerta exito">{{ mensajePassword }}</div>
+      <div *ngIf="mensajeErrorPassword" class="alerta error">{{ mensajeErrorPassword }}</div>
+
+      <div class="cambios-restantes" *ngIf="cambiosHoy > 0">
+        ⚠️ Cambios realizados hoy: {{ cambiosHoy }}/2
+      </div>
+
+      <div class="campo">
+        <label>Contraseña actual</label>
+        <input type="password" [(ngModel)]="passwordActual" placeholder="••••••••" />
+      </div>
+      <div class="campo">
+        <label>Nueva contraseña</label>
+        <input type="password" [(ngModel)]="passwordNueva" placeholder="••••••••" />
+      </div>
+      <div class="campo">
+        <label>Repetir nueva contraseña</label>
+        <input type="password" [(ngModel)]="passwordRepetir" placeholder="••••••••" />
+      </div>
+      <div class="botones-edicion">
+        <button class="btn-primary" (click)="cambiarPassword()" [disabled]="guardandoPassword || cambiosHoy >= 2">
+          {{ guardandoPassword ? 'Guardando...' : '🔐 Cambiar contraseña' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>

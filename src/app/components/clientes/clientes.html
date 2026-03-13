@@ -8,8 +8,7 @@
     <!-- LISTA -->
     <div class="seccion lista-seccion">
       <div class="seccion-header">
-        <h3>Clientes</h3>
-        <span class="badge-count">{{ clientesFiltrados.length }}</span>
+        <span class="badge-count">Total: {{ clientesFiltrados.length }}</span>
       </div>
       <input type="text" class="buscador" [(ngModel)]="busqueda" placeholder="🔍 Buscar por nombre o teléfono..." />
       <div class="lista-clientes">

@@ -15,6 +15,27 @@ export class SupabaseService {
     );
   }
 
+  // USUARIOS
+  async verificarUsuario(usuario: string, passwordHash: string): Promise<boolean> {
+    const { data, error } = await this.supabase
+      .from('usuarios')
+      .select('id')
+      .eq('usuario', usuario)
+      .eq('password_hash', passwordHash)
+      .maybeSingle();
+    if (error) return false;
+    return !!data;
+  }
+
+  async cambiarPassword(usuario: string, nuevoHash: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('usuarios')
+      .update({ password_hash: nuevoHash })
+      .eq('usuario', usuario);
+    if (error) throw error;
+  }
+
+  // TURNOS
   async getTurnos() {
     const { data, error } = await this.supabase
       .from('turnos')
@@ -52,7 +73,7 @@ export class SupabaseService {
     return data;
   }
 
-    async editarTurno(id: number, datos: any) {
+  async editarTurno(id: number, datos: any) {
     const { error } = await this.supabase
       .from('turnos')
       .update({
@@ -82,15 +103,14 @@ export class SupabaseService {
     return data;
   }
   
-  async verificarUsuario(usuario: string, passwordHash: string): Promise<boolean> {
+  async getTurnosCliente(clienteId: number) {
     const { data, error } = await this.supabase
-      .from('usuarios')
-      .select('id')
-      .eq('usuario', usuario)
-      .eq('password_hash', passwordHash)
-      .maybeSingle();
-    if (error) return false;
-    return !!data;
+      .from('turnos')
+      .select('*')
+      .eq('cliente_id', clienteId)
+      .order('fecha', { ascending: false });
+    if (error) throw error;
+    return data;
   }
 
   async crearTurnoManual(turno: any) {
@@ -99,16 +119,6 @@ export class SupabaseService {
       .insert(turno)
       .select()
       .single();
-    if (error) throw error;
-    return data;
-  }
-
-  async buscarClientes(query: string) {
-    const { data, error } = await this.supabase
-      .from('clientes')
-      .select('*, telefonos(*)')
-      .ilike('nombre', `%${query}%`)
-      .limit(5);
     if (error) throw error;
     return data;
   }
@@ -220,7 +230,7 @@ export class SupabaseService {
     if (error) throw error;
   }
 
-    // CLIENTES
+  // CLIENTES
   async getClientes() {
     const { data, error } = await this.supabase
       .from('clientes')
@@ -245,12 +255,12 @@ export class SupabaseService {
     if (error2) throw error2;
   }
 
-  async getTurnosCliente(clienteId: number) {
+  async buscarClientes(query: string) {
     const { data, error } = await this.supabase
-      .from('turnos')
-      .select('*')
-      .eq('cliente_id', clienteId)
-      .order('fecha', { ascending: false });
+      .from('clientes')
+      .select('*, telefonos(*)')
+      .ilike('nombre', `%${query}%`)
+      .limit(5);
     if (error) throw error;
     return data;
   }
@@ -306,7 +316,7 @@ export class SupabaseService {
     return nombre.trim().toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
   }
 
-    // GANANCIAS
+  // GANANCIAS
   async getGanancias(desde: string, hasta: string) {
     const { data, error } = await this.supabase
       .from('turnos')
