@@ -1,5 +1,8 @@
 <nav class="navbar" *ngIf="isLoggedIn">
-  <div class="navbar-brand">{{ nombreNegocio }}</div>
+  <div class="navbar-brand">
+    <img src="assets/icon.png" alt="logo" class="navbar-logo" />
+    <span class="navbar-nombre">{{ nombreNegocio }}</span>
+  </div>
   <div class="navbar-links">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
       <span class="icono">📋</span><span class="texto"> Turnos</span>
