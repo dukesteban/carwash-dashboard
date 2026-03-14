@@ -32,6 +32,7 @@ export class App implements OnInit {
   }
 
   logout() {
+    if (!confirm('¿Cerrar sesión?')) return;
     this.auth.logout();
     this.router.navigate(['/login']);
   }
