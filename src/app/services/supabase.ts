@@ -74,13 +74,15 @@ export class SupabaseService {
   }
 
   async editarTurno(id: number, datos: any) {
+    const horaInicio = datos.hora.length === 5 ? datos.hora + ':00' : datos.hora;
+    const horaFin = datos.horaFin.length === 5 ? datos.horaFin + ':00' : datos.horaFin;
     const { error } = await this.supabase
       .from('turnos')
       .update({
         fecha: datos.fecha,
-        hora: datos.hora,
-        hora_inicio: datos.hora,
-        hora_fin: datos.horaFin,
+        hora: horaInicio,
+        hora_inicio: horaInicio,
+        hora_fin: horaFin,
         servicio_id: datos.servicio_id,
         servicio_nombre: datos.servicio_nombre,
         precio: datos.precio,
@@ -91,14 +93,16 @@ export class SupabaseService {
   }
 
   async getTurnosSolapados(fecha: string, horaInicio: string, horaFin: string, excludeId: number) {
+    const ini = horaInicio.length === 5 ? horaInicio + ':00' : horaInicio;
+    const fin = horaFin.length === 5 ? horaFin + ':00' : horaFin;
     const { data, error } = await this.supabase
       .from('turnos')
       .select('*')
       .eq('fecha', fecha)
       .neq('estado', 'cancelado')
       .neq('id', excludeId)
-      .lt('hora_inicio', horaFin)
-      .gt('hora_fin', horaInicio);
+      .lt('hora_inicio', fin)
+      .gt('hora_fin', ini);
     if (error) throw error;
     return data;
   }

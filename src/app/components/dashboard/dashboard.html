@@ -123,7 +123,7 @@
   <div *ngIf="mostrarPopup && turnoSeleccionado" class="popup-overlay" (click)="cerrarPopup()">
     <div class="popup" (click)="$event.stopPropagation()">
       <div class="popup-header">
-        <h3>{{ modoEditarTurno ? 'Editar turno' : 'Turno' }}</h3>
+        <h3>{{ modoEditarTurno ? '📅 Editar turno' : '📅 Turno' }}</h3>
         <button class="btn-cerrar" (click)="cerrarPopup()">✕</button>
       </div>
 
@@ -155,15 +155,15 @@
         <div class="popup-body">
           <div class="campo">
             <label>Nueva Fecha</label>
-            <input type="date" [(ngModel)]="nuevaFecha" />
+            <input type="date" [(ngModel)]="nuevaFecha" (ngModelChange)="errorEditarTurno = ''"/>
           </div>
           <div class="campo">
             <label>Nueva Hora</label>
-            <input type="time" [(ngModel)]="nuevaHora" />
+            <input type="time" [(ngModel)]="nuevaHora" (ngModelChange)="errorEditarTurno = ''"/>
           </div>
           <div class="campo">
             <label>Nuevo Servicio</label>
-            <select [(ngModel)]="nuevoServicioId">
+            <select [(ngModel)]="nuevoServicioId" (ngModelChange)="errorEditarTurno = ''">
               <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombre }} — ${{ s.precio | number }}</option>
             </select>
           </div>

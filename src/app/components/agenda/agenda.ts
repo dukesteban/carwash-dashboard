@@ -38,6 +38,7 @@ export class AgendaComponent implements OnInit {
   nuevaHora = '';
   nuevoServicioId: number | null = null;
   horarios: any[] = [];
+  esperandoConfirmacion = false;
 
   constructor(private supabase: SupabaseService, private cdr: ChangeDetectorRef) {}
 
@@ -274,7 +275,7 @@ export class AgendaComponent implements OnInit {
   }
 
   get nuevoServicio(): any {
-    return this.servicios.find(s => s.id == this.nuevoServicioId) || null;
+    return this.servicios.find(s => s.id == Number(this.nuevoServicioId)) || null;
   }
 
   activarEditarTurno() {
@@ -286,70 +287,84 @@ export class AgendaComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-async confirmarEditarTurno() {
-  if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
-    this.errorEditarTurno = 'Completá todos los campos.';
-    return;
-  }
-  const servicio = this.nuevoServicio;
-  if (!servicio) return;
+  async confirmarEditarTurno() {
+    this.errorEditarTurno = '';
 
-  // Validar que no sea en el pasado — solo si el turno original es futuro
-  const fechaHora = new Date(`${this.nuevaFecha}T${this.nuevaHora}`);
-  /*
-  const turnoOriginalFecha = new Date(`${this.turnoSeleccionado.fecha}T${this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora}`);
-  if (turnoOriginalFecha > new Date()) {
-    if (fechaHora <= new Date()) {
-      this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
+    if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
+      this.errorEditarTurno = 'Completá todos los campos.';
       return;
     }
-  }
-  */
+    const servicio = this.nuevoServicio;
+    if (!servicio) return;
 
-  // Calcular hora fin
-  const [h, m] = this.nuevaHora.split(':').map(Number);
-  const fin = new Date(fechaHora);
-  fin.setMinutes(fin.getMinutes() + servicio.duracion_minutos);
-  const horaFin = `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
+    this.editandoTurno = true;
 
-  // Validar solapamiento
-  const solapados = await this.supabase.getTurnosSolapados(
-    this.nuevaFecha, this.nuevaHora, horaFin, this.turnoSeleccionado.id
-  );
-  const puestos = await this.supabase.getPuestosXTurno();
-  if (solapados.length >= puestos) {
-    this.errorEditarTurno = puestos === 1
-      ? `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`
-      : `Ya se alcanzó el límite de ${puestos} turnos simultáneos para ese horario.`;
-    return;
-  }
+    try {
+      // Validar que no sea en el pasado — solo si el turno original es futuro
+      const fechaHora = new Date(`${this.nuevaFecha}T${this.nuevaHora}`);
+      /*
+      const turnoOriginalFecha = new Date(`${this.turnoSeleccionado.fecha}T${this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora}`);
+      if (turnoOriginalFecha > new Date()) {
+        if (fechaHora <= new Date()) {
+          this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
+          return;
+        }
+      }
+      */
 
-  // Validar horario de atención
-  const diaISO = new Date(this.nuevaFecha + 'T12:00:00').getDay();
-  const horariosDia = this.horarios.filter((hor: any) => hor.dia_semana === diaISO && hor.activo);
-  const dentroHorario = horariosDia.some((hor: any) => {
-    return this.nuevaHora >= hor.hora_inicio.slice(0,5) && horaFin <= hor.hora_fin.slice(0,5);
-  });
-  if (!dentroHorario) {
-    this.errorEditarTurno = 'El horario está fuera del horario de atención.';
-    return;
-  }
+      // Calcular hora fin
+      const fin = new Date(fechaHora);
+      fin.setMinutes(fin.getMinutes() + servicio.duracion_minutos);
+      const horaFin = `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
 
-  // Confirm DESPUÉS de validar
-  if (!confirm('¿Confirmar cambio de turno?')) return;
+      // Validar solapamiento
+      const solapados = await this.supabase.getTurnosSolapados(
+        this.nuevaFecha, this.nuevaHora, horaFin, this.turnoSeleccionado.id
+      );
+      const puestos = await this.supabase.getPuestosXTurno();
+      if (solapados.length >= puestos) {
+        this.errorEditarTurno = puestos === 1
+          ? `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`
+          : `Ya se alcanzó el límite de ${puestos} turnos simultáneos para ese horario.`;
+        this.editandoTurno = false;
+        this.cdr.detectChanges();
+        return;
+      }
 
-  this.editandoTurno = true;
-  await this.supabase.editarTurno(this.turnoSeleccionado.id, {
-    fecha: this.nuevaFecha,
-    hora: this.nuevaHora,
-    horaFin,
-    servicio_id: servicio.id,
-    servicio_nombre: servicio.nombre,
-    precio: servicio.precio,
-    duracion_minutos: servicio.duracion_minutos
-  });
-  this.editandoTurno = false;
-  await this.cargarTurnos();
-  this.cerrarPopup();
+      // Validar horario de atención
+      const diaISO = new Date(this.nuevaFecha + 'T12:00:00').getDay();
+      const horariosDia = this.horarios.filter((hor: any) => hor.dia_semana === diaISO && hor.activo);
+      const dentroHorario = horariosDia.some((hor: any) => {
+        return this.nuevaHora >= hor.hora_inicio.slice(0,5) && horaFin <= hor.hora_fin.slice(0,5);
+      });
+      if (!dentroHorario) {
+        this.errorEditarTurno = 'El horario está fuera del horario de atención.';
+        this.editandoTurno = false;
+        this.cdr.detectChanges();
+        return;
+      }
+
+      // Confirm DESPUÉS de validar
+      this.editandoTurno = false;
+      if (!confirm('¿Confirmar cambio de turno?')) return;
+
+      this.editandoTurno = true;
+      await this.supabase.editarTurno(this.turnoSeleccionado.id, {
+        fecha: this.nuevaFecha,
+        hora: this.nuevaHora,
+        horaFin,
+        servicio_id: servicio.id,
+        servicio_nombre: servicio.nombre,
+        precio: servicio.precio,
+        duracion_minutos: servicio.duracion_minutos
+      });
+      await this.cargarTurnos();
+      this.cerrarPopup();
+    } catch (e) {
+      console.error('Error en confirmarEditarTurno:', e);
+      this.errorEditarTurno = '❌ Error al guardar. Intentá de nuevo.';
+    }
+
+    this.editandoTurno = false;
   }
 }
