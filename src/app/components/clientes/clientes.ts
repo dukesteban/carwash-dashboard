@@ -43,7 +43,7 @@ export class ClientesComponent implements OnInit {
   }
 
   async seleccionarCliente(cliente: any) {
-    this.clienteSeleccionado = { ...cliente, editando: false };
+    this.clienteSeleccionado = { ...cliente, editando: false, nombreOriginal: cliente.nombre };
     this.nuevoTelefono = '';
     this.cargandoTurnos = true;
     this.turnosCliente = await this.supabase.getTurnosCliente(cliente.id);
@@ -54,6 +54,13 @@ export class ClientesComponent implements OnInit {
   cerrarDetalle() {
     this.clienteSeleccionado = null;
     this.turnosCliente = [];
+    this.cdr.detectChanges();
+  }
+
+  cancelarEdicionNombre() {
+    if (!this.clienteSeleccionado) return;
+    this.clienteSeleccionado.nombre = this.clienteSeleccionado.nombreOriginal ?? this.clienteSeleccionado.nombre;
+    this.clienteSeleccionado.editando = false;
     this.cdr.detectChanges();
   }
 

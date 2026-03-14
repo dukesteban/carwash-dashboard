@@ -42,7 +42,7 @@
             class="input-nombre" />
           <button *ngIf="!clienteSeleccionado.editando" class="btn-icon" (click)="clienteSeleccionado.editando = true">✏️</button>
           <button *ngIf="clienteSeleccionado.editando" class="btn-icon" (click)="guardarNombre()">💾</button>
-          <button *ngIf="clienteSeleccionado.editando" class="btn-icon" (click)="clienteSeleccionado.editando = false">↩️</button>
+          <button *ngIf="clienteSeleccionado.editando" class="btn-icon" (click)="cancelarEdicionNombre()">↩️</button>
         </div>
       </div>
 
