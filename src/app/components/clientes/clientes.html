@@ -1,8 +1,5 @@
 <div class="clientes-page">
 
-  <div *ngIf="mensaje" class="alerta exito">{{ mensaje }}</div>
-  <div *ngIf="mensajeError" class="alerta error">{{ mensajeError }}</div>
-
   <div class="layout" [class.con-detalle]="clienteSeleccionado">
 
     <!-- LISTA -->
@@ -29,6 +26,8 @@
 
     <!-- DETALLE -->
     <div *ngIf="clienteSeleccionado" class="seccion detalle-seccion">
+      <div *ngIf="mensaje" class="alerta exito">{{ mensaje }}</div>
+      <div *ngIf="mensajeError" class="alerta error">{{ mensajeError }}</div>
       <div class="seccion-header">
         <h3>Detalle del cliente</h3>
         <button class="btn-cerrar" (click)="cerrarDetalle()">✕</button>

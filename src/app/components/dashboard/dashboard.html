@@ -32,7 +32,7 @@
   <!-- Turnos de hoy -->
   <div class="seccion">
     <div class="seccion-header">
-      <h3>Turnos de hoy</h3>
+      <h4>Turnos de hoy</h4>
       <div style="display:flex; gap:8px">
         <button class="btn-primary" (click)="abrirModalNuevoTurno()">➕ Nuevo</button>
       </div>
@@ -70,11 +70,23 @@
 
   <!-- Todos los turnos -->
   <div class="seccion">
-    <div class="seccion-header">
-      <h3>Turnos</h3>
-      <div class="vistas">
-        <button [class.activo]="vistasTurnos === 'semana'" (click)="vistasTurnos = 'semana'">📅 Semana</button>
-        <button [class.activo]="vistasTurnos === 'mes'" (click)="vistasTurnos = 'mes'">📅 Mes</button>
+    <div class="seccion-header seccion-header-turnos">
+      <div class="turnos-top">
+        <div class="fecha-titulo">
+          <span *ngIf="vistasTurnos === 'semana'">Turnos: {{ rangoSemanaTurnos }}</span>
+          <span *ngIf="vistasTurnos === 'mes'">Turnos: {{ tituloMesTurnos }}</span>
+        </div>
+      </div>
+      <div class="turnos-controles">
+        <div class="vistas">
+          <button [class.activo]="vistasTurnos === 'semana'" (click)="cambiarVistaTurnos('semana')">📅 Semana</button>
+          <button [class.activo]="vistasTurnos === 'mes'" (click)="cambiarVistaTurnos('mes')">📅 Mes</button>
+        </div>
+        <div class="navegacion">
+          <button class="btn-nav" (click)="navegarTurnos(-1)">‹</button>
+          <button class="btn-hoy" (click)="irHoyTurnos()">Actual</button>
+          <button class="btn-nav" (click)="navegarTurnos(1)">›</button>
+        </div>
       </div>
     </div>
     <div class="tabla-wrapper">

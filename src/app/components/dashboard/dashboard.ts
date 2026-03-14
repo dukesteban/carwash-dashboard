@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit {
   turnosPendientes = 0;
   vistasTurnos: 'semana' | 'mes' = 'semana';
   mostrarIngresos = true;
+  fechaTurnos: Date = new Date();
   
   // Popup
   turnoSeleccionado: any = null;
@@ -75,7 +76,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get turnosFiltrados(): any[] {
-    const hoy = new Date();
+    const base = this.fechaTurnos;
     const formatLocal = (d: Date) => {
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -84,16 +85,35 @@ export class DashboardComponent implements OnInit {
     };
 
     if (this.vistasTurnos === 'semana') {
-      const lunes = new Date(hoy);
-      lunes.setDate(hoy.getDate() - (hoy.getDay() === 0 ? 6 : hoy.getDay() - 1));
+      const lunes = new Date(base);
+      lunes.setDate(base.getDate() - (base.getDay() === 0 ? 6 : base.getDay() - 1));
       const domingo = new Date(lunes);
       domingo.setDate(lunes.getDate() + 6);
       return this.todosTurnos.filter(t => t.fecha >= formatLocal(lunes) && t.fecha <= formatLocal(domingo));
     } else {
-      const y = hoy.getFullYear();
-      const m = String(hoy.getMonth() + 1).padStart(2, '0');
+      const y = base.getFullYear();
+      const m = String(base.getMonth() + 1).padStart(2, '0');
       return this.todosTurnos.filter(t => t.fecha.startsWith(`${y}-${m}`));
     }
+  }
+
+  cambiarVistaTurnos(v: 'semana' | 'mes') {
+    this.vistasTurnos = v;
+    this.fechaTurnos = new Date(); // resetea al mes/semana actual
+  }
+  
+  navegarTurnos(dir: number) {
+    const d = new Date(this.fechaTurnos);
+    if (this.vistasTurnos === 'semana') {
+      d.setDate(d.getDate() + dir * 7);
+    } else {
+      d.setMonth(d.getMonth() + dir);
+    }
+    this.fechaTurnos = d;
+  }
+  
+  irHoyTurnos() {
+    this.fechaTurnos = new Date();
   }
 
   async cambiarEstado(id: number, estado: string) {
@@ -206,6 +226,26 @@ export class DashboardComponent implements OnInit {
     this.editandoTurno = false;
     await this.cargarDatos();
     this.cerrarPopup();
+  }
+
+  private formatearFechaCorta(fecha: Date): string {
+    const d = String(fecha.getDate()).padStart(2, '0');
+    const m = String(fecha.getMonth() + 1).padStart(2, '0');
+    return `${d}/${m}`;
+  }
+
+  get rangoSemanaTurnos(): string {
+    const base = this.fechaTurnos;
+    const lunes = new Date(base);
+    lunes.setDate(base.getDate() - (base.getDay() === 0 ? 6 : base.getDay() - 1));
+    const domingo = new Date(lunes);
+    domingo.setDate(lunes.getDate() + 6);
+    return `${this.formatearFechaCorta(lunes)} — ${this.formatearFechaCorta(domingo)}`;
+  }
+
+  get tituloMesTurnos(): string {
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    return `${meses[this.fechaTurnos.getMonth()]} ${this.fechaTurnos.getFullYear()}`;
   }
 
   formatearHora(hora: string): string {
