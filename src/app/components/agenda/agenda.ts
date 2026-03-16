@@ -138,11 +138,11 @@ export class AgendaComponent implements OnInit {
     if (columnas?.has(turno.id)) {
       const { col, total } = columnas.get(turno.id)!;
       if (total === 1) {
-        width = 'calc(100% - 10px)';
-        left = '0px';
-        } else {
+        width = mini ? 'calc(100% - 13.5px)' : 'calc(100% - 18.5px)';
+        left = mini ? '0px' : '0px';
+      } else {
           const pct = 100 / total;
-          width = `calc(${pct}% - 10px)`;
+          width = `calc(${pct}% - 12.5px)`;
           left = `calc(${pct * col}% + 0px)`;
         }
     }
