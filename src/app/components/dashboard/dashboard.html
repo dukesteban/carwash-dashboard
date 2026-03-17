@@ -127,6 +127,7 @@
         <button class="btn-cerrar" (click)="cerrarPopup()">✕</button>
       </div>
 
+      <!-- Vista normal -->
       <div *ngIf="!modoEditarTurno">
         <div class="popup-body">
           <div class="detalle-bloque">
@@ -145,12 +146,13 @@
           <button *ngIf="turnoSeleccionado.estado !== 'cancelado' && turnoSeleccionado.estado !== 'atendido'"
             class="btn-cancelado" (click)="iniciarCancelacion()">❌ Canceló/Cancelar</button>
           <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
-            class="btn-editarTurno" (click)="activarEditarTurno()">📅 Editar</button>
+            class="btn-editarTurno" (click)="activarEditarTurno()">📅 Editar/Reprog.</button>
           <button *ngIf="turnoSeleccionado.estado === 'atendido' || turnoSeleccionado.estado === 'cancelado'"
             class="btn-editar" (click)="cambiarEstadoPopup('pendiente')">↩️ Volver a Pendiente</button>
         </div>
       </div>
 
+      <!-- Vista editar Turno -->
       <div *ngIf="modoEditarTurno">
         <div class="popup-body">
           <div class="campo">
@@ -285,4 +287,5 @@
       </div>
     </div>  
   </div>
+
 </div>

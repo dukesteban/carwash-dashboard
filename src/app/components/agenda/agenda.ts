@@ -39,6 +39,10 @@ export class AgendaComponent implements OnInit {
   nuevoServicioId: number | null = null;
   horarios: any[] = [];
   esperandoConfirmacion = false;
+  mostrarPopupCancelacion = false;
+  motivoCancelacion = '';
+  enviandoMensaje = false;
+  nombreNegocio = localStorage.getItem('nombre_negocio') || '';
 
   constructor(private supabase: SupabaseService, private cdr: ChangeDetectorRef) {}
 
@@ -217,6 +221,12 @@ export class AgendaComponent implements OnInit {
     return `${dia} ${d}/${m}`;
   }
 
+  formatearFechaStr(fecha: string): string {
+    if (!fecha) return '';
+    const [y, m, d] = fecha.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
   formatearFechaCorta(fecha: Date): string {
     const d = String(fecha.getDate()).padStart(2, '0');
     const m = String(fecha.getMonth() + 1).padStart(2, '0');
@@ -251,7 +261,7 @@ export class AgendaComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  async cambiarEstado(estado: string) {
+  async cambiarEstadoPopup(estado: string) {
     if (!this.turnoSeleccionado) return;
     const id = this.turnoSeleccionado.id;
     await this.supabase.updateEstadoTurno(id, estado);
@@ -290,7 +300,6 @@ export class AgendaComponent implements OnInit {
 
   async confirmarEditarTurno() {
     this.errorEditarTurno = '';
-
     if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
       this.errorEditarTurno = 'Completá todos los campos.';
       return;
@@ -346,11 +355,11 @@ export class AgendaComponent implements OnInit {
       }
 
       // Confirm DESPUÉS de validar
-      this.editandoTurno = false;
-      if (!confirm('¿Confirmar cambio de turno?')) return;
-      this.editandoTurno = true;   
+      //this.editandoTurno = false;
+      //if (!confirm('¿Confirmar cambio de turno?')) return;
+      //this.editandoTurno = true;   
 
-      this.editandoTurno = true;
+      this.editandoTurno = false;
       await this.supabase.editarTurno(this.turnoSeleccionado.id, {
         fecha: this.nuevaFecha,
         hora: this.nuevaHora,
@@ -368,5 +377,52 @@ export class AgendaComponent implements OnInit {
     }
 
     this.editandoTurno = false;
+  }
+
+  async iniciarCancelacion() {
+    if (!this.turnoSeleccionado) return;
+    await this.supabase.updateEstadoTurno(this.turnoSeleccionado.id, 'cancelado');
+    if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?'))
+    {
+      this.motivoCancelacion = '';
+      this.mostrarPopupCancelacion = true;
+    } else
+    {
+      this.mostrarPopupCancelacion = false;
+      this.cerrarPopupCancelacion()
+    }
+    this.cdr.detectChanges();
+  }
+
+  async enviarMensajeCancelacion() {
+    if (!this.turnoSeleccionado?.cliente_telefono) return;
+    this.enviandoMensaje = true;
+    try {
+      const fecha = this.formatearFecha(this.turnoSeleccionado.fecha);
+      const hora = this.formatearHora(this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora);
+      const mensaje = `Estimado cliente:\nEl turno del día ${fecha} a las ${hora} hs ha sido cancelado debido a ${this.motivoCancelacion}.\nLamentamos los inconvenientes causados.\nAtte. ${this.nombreNegocio}`;
+      await fetch('https://primary-production-4f919.up.railway.app/webhook/cancelacion-turno', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to: this.turnoSeleccionado.cliente_telefono,
+          type: 'text',
+          text: { body: mensaje }
+        })
+      });
+    } catch (e) {
+      console.error('Error enviando mensaje:', e);
+    }
+    this.enviandoMensaje = false;
+    this.mostrarPopupCancelacion = false;
+    this.cerrarPopup();
+    await this.cargarTurnos();
+  }
+
+  cerrarPopupCancelacion() {
+    this.mostrarPopupCancelacion = false;
+    this.cerrarPopup();
+    this.cargarTurnos();
   }
 }

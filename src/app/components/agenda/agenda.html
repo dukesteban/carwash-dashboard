@@ -96,112 +96,145 @@
     </div>
   </div>
 
-</div>
-
-<ng-template #turnosConColumnas let-turnos="turnos" let-mini="mini">
-  <ng-container *ngIf="turnos.length > 0">
-    <div
-      *ngFor="let turno of turnos"
-      [class]="mini ? 'bloque-turno-semana' : 'bloque-turno'"
-      [ngClass]="getColorTurno(turno)"
-      [style.top.px]="posicionTurno(turno, calcularColumnas(turnos), !!mini).top"
-      [style.height.px]="posicionTurno(turno, calcularColumnas(turnos), !!mini).height"
-      [style.left]="posicionTurno(turno, calcularColumnas(turnos), !!mini).left"
-      [style.width]="posicionTurno(turno, calcularColumnas(turnos), !!mini).width"
-      (click)="abrirPopup(turno)">
-      <div *ngIf="!mini" class="turno-header">
-        <span class="turno-hora">{{ formatearHora(turno.hora_inicio || turno.hora) }}</span>
-        <span class="turno-cliente">{{ turno.cliente_nombre }}</span>
+  <!-- POPUP -->
+  <div *ngIf="mostrarPopup && turnoSeleccionado" class="popup-overlay" (click)="cerrarPopup()">
+    <div class="popup" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3>{{ modoEditarTurno ? '📅 Editar turno' : '📅 Turno' }}</h3>
+        <button class="btn-cerrar" (click)="cerrarPopup()">✕</button>
       </div>
-      <div *ngIf="mini" class="turno-cliente-sm">{{ turno.cliente_nombre }}</div>
-      <div [class]="mini ? 'turno-servicio-sm' : 'turno-servicio'">{{ turno.servicio_nombre }}</div>
-      <div *ngIf="!mini" class="turno-precio">${{ turno.precio | number }}</div>
-    </div>
-  </ng-container>
-</ng-template>
 
-<!-- POPUP -->
-<div *ngIf="mostrarPopup && turnoSeleccionado" class="popup-overlay" (click)="cerrarPopup()">
-  <div class="popup" (click)="$event.stopPropagation()">
-    <div class="popup-header">
-      <h3>{{ modoEditarTurno ? '📅 Editar turno' : '📅 Turno' }}</h3>
-      <button class="btn-cerrar" (click)="cerrarPopup()">✕</button>
-    </div>
-
-    <!-- Vista normal -->
-    <div *ngIf="!modoEditarTurno">
-      <div class="popup-body">
-        <div class="detalle-bloque">
-          <div class="popup-fila">
-            <span class="popup-label">Cliente</span>
-            <span>{{ turnoSeleccionado.cliente_nombre }}</span>
-          </div>
-          <div class="popup-fila">
-            <span class="popup-label">Servicio</span>
-            <span>{{ turnoSeleccionado.servicio_nombre }}</span>
-          </div>
-          <div class="popup-fila">
-            <span class="popup-label">Fecha</span>
-            <span>{{ formatearFechaTurno(turnoSeleccionado.fecha) }}</span>
-          </div>
-          <div class="popup-fila">
-            <span class="popup-label">Hora</span>
-            <span>{{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }}</span>
-          </div>
-          <div class="popup-fila">
-            <span class="popup-label">Duración</span>
-            <span>{{ turnoSeleccionado.duracion_minutos || 45 }} min</span>
-          </div>
-          <div class="popup-fila">
-            <span class="popup-label">Precio</span>
-            <span>${{ turnoSeleccionado.precio | number }}</span>
-          </div>
-          <div class="popup-fila">
-            <span class="popup-label">Estado</span>
-            <span class="badge" [ngClass]="esVencido(turnoSeleccionado) ? 'vencido' : turnoSeleccionado.estado">
-              {{ esVencido(turnoSeleccionado) ? 'vencido' : turnoSeleccionado.estado }}
-            </span>
+      <!-- Vista normal -->
+      <div *ngIf="!modoEditarTurno">
+        <div class="popup-body">
+          <div class="detalle-bloque">
+            <div class="popup-fila">
+              <span class="popup-label">Cliente</span>
+              <span>{{ turnoSeleccionado.cliente_nombre }}</span>
+            </div>
+            <div class="popup-fila">
+              <span class="popup-label">Servicio</span>
+              <span>{{ turnoSeleccionado.servicio_nombre }}</span>
+            </div>
+            <div class="popup-fila">
+              <span class="popup-label">Fecha</span>
+              <span>{{ formatearFechaTurno(turnoSeleccionado.fecha) }}</span>
+            </div>
+            <div class="popup-fila">
+              <span class="popup-label">Hora</span>
+              <span>{{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }}</span>
+            </div>
+            <div class="popup-fila">
+              <span class="popup-label">Duración</span>
+              <span>{{ turnoSeleccionado.duracion_minutos || 45 }} min</span>
+            </div>
+            <div class="popup-fila">
+              <span class="popup-label">Precio</span>
+              <span>${{ turnoSeleccionado.precio | number }}</span>
+            </div>
+            <div class="popup-fila">
+              <span class="popup-label">Estado</span>
+              <span class="badge" [ngClass]="esVencido(turnoSeleccionado) ? 'vencido' : turnoSeleccionado.estado">
+                {{ esVencido(turnoSeleccionado) ? 'vencido' : turnoSeleccionado.estado }}
+              </span>
+            </div>
           </div>
         </div>
+        <div class="popup-acciones">
+          <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
+            class="btn-atendido" (click)="cambiarEstadoPopup('atendido')">✅ Atendido</button>
+          <button *ngIf="turnoSeleccionado.estado !== 'cancelado' && turnoSeleccionado.estado !== 'atendido'"
+            class="btn-cancelado" (click)="iniciarCancelacion()">❌ Canceló/Cancelar</button>
+          <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
+            class="btn-editarTurno" (click)="activarEditarTurno()">📅 Editar/Reprog.</button>
+          <button *ngIf="turnoSeleccionado.estado === 'atendido' || turnoSeleccionado.estado === 'cancelado'"
+            class="btn-editar" (click)="cambiarEstadoPopup('pendiente')">↩️ Volver a Pendiente</button>
+        </div>
       </div>
-      <div class="popup-acciones">
-        <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
-          class="btn-atendido" (click)="cambiarEstado('atendido')">✅ Atendido</button>
-        <button *ngIf="turnoSeleccionado.estado !== 'cancelado' && turnoSeleccionado.estado !== 'atendido'"
-          class="btn-cancelado" (click)="cambiarEstado('cancelado')">❌ Canceló</button>
-        <button *ngIf="turnoSeleccionado.estado !== 'atendido' && turnoSeleccionado.estado !== 'cancelado'"
-          class="btn-editarTurno" (click)="activarEditarTurno()">📅 Editar</button>
-        <button *ngIf="turnoSeleccionado.estado === 'atendido' || turnoSeleccionado.estado === 'cancelado'"
-          class="btn-editar" (click)="cambiarEstado('pendiente')">↩️ Volver a Pendiente</button>
-      </div>
-    </div>
 
-    <!-- Vista editar Turno -->
-    <div *ngIf="modoEditarTurno">
-      <div class="popup-body">
-        <div class="campo">
-          <label>Nueva Fecha</label>
-          <input type="date" [(ngModel)]="nuevaFecha" (ngModelChange)="errorEditarTurno = ''"/>
+      <!-- Vista editar Turno -->
+      <div *ngIf="modoEditarTurno">
+        <div class="popup-body">
+          <div class="campo">
+            <label>Nueva Fecha</label>
+            <input type="date" [(ngModel)]="nuevaFecha" (ngModelChange)="errorEditarTurno = ''"/>
+          </div>
+          <div class="campo">
+            <label>Nueva Hora</label>
+            <input type="time" [(ngModel)]="nuevaHora" (ngModelChange)="errorEditarTurno = ''"/>
+          </div>
+          <div class="campo">
+            <label>Nuevo Servicio</label>
+            <select [(ngModel)]="nuevoServicioId" (ngModelChange)="errorEditarTurno = ''">
+              <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombre }} — ${{ s.precio | number }}</option>
+            </select>
+          </div>
+          <div *ngIf="errorEditarTurno" class="error-msg">{{ errorEditarTurno }}</div>
         </div>
-        <div class="campo">
-          <label>Nueva Hora</label>
-          <input type="time" [(ngModel)]="nuevaHora" (ngModelChange)="errorEditarTurno = ''"/>
+        <div class="popup-acciones">
+          <button class="btn-atendido" (click)="confirmarEditarTurno()" [disabled]="editandoTurno">
+            {{ editandoTurno ? 'Guardando...' : '💾 Confirmar' }}
+          </button>
+          <button class="btn-cancelado" (click)="modoEditarTurno = false">↩️ Volver</button>
         </div>
-        <div class="campo">
-          <label>Nuevo Servicio</label>
-          <select [(ngModel)]="nuevoServicioId" (ngModelChange)="errorEditarTurno = ''">
-            <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombre }} — ${{ s.precio | number }}</option>
-          </select>
-        </div>
-        <div *ngIf="errorEditarTurno" class="error-msg">{{ errorEditarTurno }}</div>
       </div>
-      <div class="popup-acciones">
-        <button class="btn-atendido" (click)="confirmarEditarTurno()" [disabled]="editandoTurno">
-          {{ editandoTurno ? 'Guardando...' : '💾 Confirmar' }}
-        </button>
-        <button class="btn-cancelado" (click)="modoEditarTurno = false">↩️ Volver</button>
-      </div>
-    </div>
 
+    </div>
   </div>
+
+  <ng-template #turnosConColumnas let-turnos="turnos" let-mini="mini">
+    <ng-container *ngIf="turnos.length > 0">
+      <div
+        *ngFor="let turno of turnos"
+        [class]="mini ? 'bloque-turno-semana' : 'bloque-turno'"
+        [ngClass]="getColorTurno(turno)"
+        [style.top.px]="posicionTurno(turno, calcularColumnas(turnos), !!mini).top"
+        [style.height.px]="posicionTurno(turno, calcularColumnas(turnos), !!mini).height"
+        [style.left]="posicionTurno(turno, calcularColumnas(turnos), !!mini).left"
+        [style.width]="posicionTurno(turno, calcularColumnas(turnos), !!mini).width"
+        (click)="abrirPopup(turno)">
+        <div *ngIf="!mini" class="turno-header">
+          <span class="turno-hora">{{ formatearHora(turno.hora_inicio || turno.hora) }}</span>
+          <span class="turno-cliente">{{ turno.cliente_nombre }}</span>
+        </div>
+        <div *ngIf="mini" class="turno-cliente-sm">{{ turno.cliente_nombre }}</div>
+        <div [class]="mini ? 'turno-servicio-sm' : 'turno-servicio'">{{ turno.servicio_nombre }}</div>
+        <div *ngIf="!mini" class="turno-precio">${{ turno.precio | number }}</div>
+      </div>
+    </ng-container>
+  </ng-template>
+
+  <!-- POPUP CANCELACION -->
+  <div *ngIf="mostrarPopupCancelacion" class="popup-overlay">
+    <div class="popup" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3>📩 Notificar cancelación</h3>
+        <button class="btn-cerrar" (click)="cerrarPopupCancelacion()">✕</button>
+      </div>
+      <div class="popup-body">
+        <div class="campo">
+          <label>Motivo de cancelación</label>
+          <textarea [(ngModel)]="motivoCancelacion" rows="3"
+            placeholder="Ej: por lluvia."></textarea>
+        </div>
+        <div class="mensaje-preview">
+          <span class="preview-label">Vista previa:</span>
+          <p>
+          Estimado cliente:<br>
+          El turno del día {{ formatearFechaStr(turnoSeleccionado.fecha) }} a las {{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }} hs ha sido cancelado debido a {{ motivoCancelacion || '[escribir razón]' }}.<br>
+          Lamentamos los inconvenientes causados.<br>
+          Atte. {{ nombreNegocio }}
+          </p>
+        </div>
+      </div>
+      <div class="popup-acciones">
+        <button class="btn-atendido" (click)="enviarMensajeCancelacion()"
+          [disabled]="enviandoMensaje || !motivoCancelacion.trim()">
+          {{ enviandoMensaje ? 'Enviando...' : '📩 Enviar mensaje' }}
+        </button>
+        <button class="btn-editar" (click)="cerrarPopupCancelacion()">❌ Omitir</button>
+      </div>
+    </div>  
+  </div>
+
 </div>
