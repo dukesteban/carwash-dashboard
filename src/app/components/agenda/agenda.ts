@@ -313,6 +313,19 @@ export class AgendaComponent implements OnInit {
     const servicio = this.nuevoServicio;
     if (!servicio) return;
 
+    // Verificar si hubo cambios
+    /*
+    const sinCambios = 
+      this.nuevaFecha === this.turnoSeleccionado.fecha &&
+      this.nuevaHora === (this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora)?.slice(0, 5) &&
+      Number(this.nuevoServicioId) === this.turnoSeleccionado.servicio_id;
+
+    if (sinCambios) {
+      this.errorEditarTurno = 'No realizaste ningún cambio.';
+      return;
+    }
+    */
+   
     this.editandoTurno = true;
 
     try {
@@ -451,7 +464,7 @@ export class AgendaComponent implements OnInit {
     this.enviandoMensajePostergacion = true;
     try {
       const fecha = this.formatearFechaStr(this._nuevaFechaPostergacion);
-      const mensaje = `Estimado cliente:\nTu turno ha sido reprogramado para el día ${fecha} a las ${this._nuevaHoraPostergacion} hs (${this._nuevoServicioPostergacion}).${this.motivoPostergacion ? '\n' + this.motivoPostergacion : ''}\nLamentamos los inconvenientes causados.\n(Si deseas consultar tus turnos escribí *3* o *turnos*)\nAtte. ${this.nombreNegocio}`;
+      const mensaje = `Estimado cliente:\nTu turno ha sido reprogramado para el día ${fecha} a las ${this._nuevaHoraPostergacion} hs (${this._nuevoServicioPostergacion}).${this.motivoPostergacion ? '\n' + this.motivoPostergacion + '.' : ''}\nLamentamos los inconvenientes causados.\n(Si deseas consultar tus turnos escribí *3* o *turnos*)\nAtte. ${this.nombreNegocio}`;
       await fetch('https://primary-production-4f919.up.railway.app/webhook/cancelacion-turno', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

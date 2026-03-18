@@ -306,14 +306,14 @@
         <div class="campo">
           <label>Aclaración (opcional)</label>
           <textarea [(ngModel)]="motivoPostergacion" rows="3"
-            placeholder="Ej: Por corte de luz."></textarea>
+            placeholder="Ej: Por corte de luz"></textarea>
         </div>
         <div class="mensaje-preview">
           <span class="preview-label">Vista previa:</span>
           <p>
             Estimado cliente:<br>
             Tu turno ha sido reprogramado para el día {{ formatearFecha(_nuevaFechaPostergacion) }} a las {{ _nuevaHoraPostergacion }} hs ({{ _nuevoServicioPostergacion }}).<br>
-            <span *ngIf="motivoPostergacion">{{ motivoPostergacion }}<br></span>
+            <span *ngIf="motivoPostergacion">{{ motivoPostergacion }}.<br></span>
             Lamentamos los inconvenientes causados.<br>
             (Si deseas consultar tus turnos escribí 3 o turnos)<br>
             Atte. {{ nombreNegocio }}
