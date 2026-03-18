@@ -275,7 +275,7 @@
             placeholder="Ej: por lluvia."></textarea>
         </div>
         <div class="mensaje-preview">
-          <span class="preview-label">Vista previa:</span>
+          <span class="preview-label">Vista previa del mensaje:</span>
           <p>
           Estimado cliente:<br>
           El turno del día <b>{{ formatearFecha(turnoSeleccionado.fecha) }}</b> a las <b>{{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }}</b> hs ha sido <b>cancelado</b> debido a {{ motivoCancelacion || '[escribir razón]' }}.<br>
