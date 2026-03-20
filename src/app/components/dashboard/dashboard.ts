@@ -483,8 +483,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async iniciarNotificacionPostergacion(nuevaFecha: string, nuevaHora: string, nuevoServicio: string) {
-    if (!this.turnoSeleccionado?.cliente_telefono) return;
-    if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?')) {
+    const telefonoCliente = this.turnoSeleccionado?.cliente_telefono;
+    if (!telefonoCliente) {
+      this.cerrarPopup();
+      await this.cargarTurnos();
+    } else if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?')) {
       this.motivoPostergacion = '';
       this._nuevaFechaPostergacion = nuevaFecha;
       this._nuevaHoraPostergacion = nuevaHora;
