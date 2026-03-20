@@ -436,16 +436,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async iniciarCancelacion() {
-    if (!this.turnoSeleccionado) return;
-    await this.supabase.updateEstadoTurno(this.turnoSeleccionado.id, 'cancelado');
-    if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?'))
-    {
-      this.motivoCancelacion = '';
-      this.mostrarPopupCancelacion = true;
-    } else
-    {
-      this.mostrarPopupCancelacion = false;
-      this.cerrarPopupCancelacion()
+    if (this.turnoSeleccionado) {
+      await this.supabase.updateEstadoTurno(this.turnoSeleccionado.id, 'cancelado');
+      if (this.turnoSeleccionado.cliente_telefono && 
+          confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?')) {
+        this.motivoCancelacion = '';
+        this.mostrarPopupCancelacion = true;
+      } else {
+        this.cerrarPopupCancelacion();
+        await this.cargarTurnos();
+      }
+    } else {
+      this.cerrarPopupCancelacion();
+      await this.cargarTurnos();
     }
     this.cdr.detectChanges();
   }
@@ -474,12 +477,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.mostrarPopupCancelacion = false;
     this.cerrarPopup();
     await this.cargarTurnos();
+    this.cdr.detectChanges();
   }
 
   cerrarPopupCancelacion() {
     this.mostrarPopupCancelacion = false;
     this.cerrarPopup();
-    this.cargarTurnos();
   }
 
   async iniciarNotificacionPostergacion(nuevaFecha: string, nuevaHora: string, nuevoServicio: string) {
@@ -519,14 +522,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       console.error('Error enviando mensaje:', e);
     }
     this.enviandoMensajePostergacion = false;
-    this.mostrarPopupPostergacion = false;
     this.cerrarPopupPostergacion();
     await this.cargarTurnos();
+    this.cdr.detectChanges();
   }
 
   cerrarPopupPostergacion() {
     this.mostrarPopupPostergacion = false;
     this.cerrarPopup();
-    this.cargarTurnos();
   }
 }
