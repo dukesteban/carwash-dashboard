@@ -355,6 +355,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async guardarNuevoTurno() {
+    this.errorNuevoTurno = '';
     if (!this.clienteSeleccionadoNuevo) { this.errorNuevoTurno = 'Seleccioná un cliente.'; return; }
     if (!this.nuevoTurnoFecha) { this.errorNuevoTurno = 'Ingresá una fecha.'; return; }
     if (!this.nuevoTurnoHora) { this.errorNuevoTurno = 'Ingresá una hora.'; return; }
@@ -363,55 +364,66 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const servicio = this.nuevoTurnoServicio;
     if (!servicio) return;
 
-    // Calcular hora fin
-    const fechaHora = new Date(`${this.nuevoTurnoFecha}T${this.nuevoTurnoHora}`);
-    const fin = new Date(fechaHora);
-    fin.setMinutes(fin.getMinutes() + servicio.duracion_minutos);
-    const horaFin = `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
-
-    // Validar solapamiento
-    const solapados = await this.supabase.getTurnosSolapados(
-      this.nuevoTurnoFecha, this.nuevoTurnoHora, horaFin, 0
-    );
-    const puestos = await this.supabase.getPuestosXTurno();
-    if (solapados.length >= puestos) {
-      this.errorNuevoTurno = puestos === 1
-        ? `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`
-        : `Ya se alcanzó el límite de ${puestos} turnos simultáneos para ese horario.`;
-      return;
-    }
-
-    // Validar horario de atención
-    const diaISO = new Date(this.nuevoTurnoFecha + 'T12:00:00').getDay();
-    const horariosDia = this.horarios.filter((hor: any) => hor.dia_semana === diaISO && hor.activo);
-    const dentroHorario = horariosDia.some((hor: any) =>
-      this.nuevoTurnoHora >= hor.hora_inicio.slice(0,5) && horaFin <= hor.hora_fin.slice(0,5)
-    );
-    if (!dentroHorario) {
-      this.errorNuevoTurno = 'El horario está fuera del horario de atención.';
-      return;
-    }
-
-    const telefono = this.clienteSeleccionadoNuevo.telefonos?.[0]?.telefono || '';
-
     this.guardandoNuevoTurno = true;
-    await this.supabase.crearTurnoManual({
-      cliente_id: this.clienteSeleccionadoNuevo.id,
-      cliente_nombre: this.clienteSeleccionadoNuevo.nombre,
-      cliente_telefono: telefono,
-      fecha: this.nuevoTurnoFecha,
-      hora: this.nuevoTurnoHora,
-      hora_inicio: this.nuevoTurnoHora,
-      hora_fin: horaFin,
-      servicio_id: servicio.id,
-      servicio_nombre: servicio.nombre,
-      precio: servicio.precio,
-      duracion_minutos: servicio.duracion_minutos,
-      estado: 'pendiente'
-    });
+
+    try {
+      // Calcular hora fin
+      const fechaHora = new Date(`${this.nuevoTurnoFecha}T${this.nuevoTurnoHora}`);
+      const fin = new Date(fechaHora);
+      fin.setMinutes(fin.getMinutes() + servicio.duracion_minutos);
+      const horaFin = `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
+
+      // Validar solapamiento
+      const solapados = await this.supabase.getTurnosSolapados(
+        this.nuevoTurnoFecha, this.nuevoTurnoHora, horaFin, 0
+      );
+      const puestos = await this.supabase.getPuestosXTurno();
+      if (solapados.length >= puestos) {
+        this.errorNuevoTurno = puestos === 1
+          ? `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`
+          : `Ya se alcanzó el límite de ${puestos} turnos simultáneos para ese horario.`;
+        this.guardandoNuevoTurno = false;
+        this.cdr.detectChanges();
+        return;
+      }
+
+      // Validar horario de atención
+      const diaISO = new Date(this.nuevoTurnoFecha + 'T12:00:00').getDay();
+      const horariosDia = this.horarios.filter((hor: any) => hor.dia_semana === diaISO && hor.activo);
+      const dentroHorario = horariosDia.some((hor: any) =>
+        this.nuevoTurnoHora >= hor.hora_inicio.slice(0,5) && horaFin <= hor.hora_fin.slice(0,5)
+      );
+      if (!dentroHorario) {
+        this.errorNuevoTurno = 'El horario está fuera del horario de atención.';
+        this.guardandoNuevoTurno = false;
+        this.cdr.detectChanges();
+        return;
+      }
+
+      const telefono = this.clienteSeleccionadoNuevo.telefonos?.[0]?.telefono || '';
+
+      await this.supabase.crearTurnoManual({
+        cliente_id: this.clienteSeleccionadoNuevo.id,
+        cliente_nombre: this.clienteSeleccionadoNuevo.nombre,
+        cliente_telefono: telefono,
+        fecha: this.nuevoTurnoFecha,
+        hora: this.nuevoTurnoHora,
+        hora_inicio: this.nuevoTurnoHora,
+        hora_fin: horaFin,
+        servicio_id: servicio.id,
+        servicio_nombre: servicio.nombre,
+        precio: servicio.precio,
+        duracion_minutos: servicio.duracion_minutos,
+        estado: 'pendiente'
+      });
+      await this.cargarTurnos();
+      this.cerrarModalNuevoTurno();
+    } catch (e) {
+      console.error('Error en guardarNuevoTurno:', e);
+      this.errorNuevoTurno = '❌ Error al guardar. Intentá de nuevo.';
+    }
+
     this.guardandoNuevoTurno = false;
-    await this.cargarTurnos();
-    this.cerrarModalNuevoTurno();
   }
 
   async crearYSeleccionarCliente() {
