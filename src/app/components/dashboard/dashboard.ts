@@ -375,7 +375,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
     const puestos = await this.supabase.getPuestosXTurno();
     if (solapados.length >= puestos) {
-      this.errorEditarTurno = puestos === 1
+      this.errorNuevoTurno = puestos === 1
         ? `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`
         : `Ya se alcanzó el límite de ${puestos} turnos simultáneos para ese horario.`;
       return;
