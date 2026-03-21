@@ -220,7 +220,7 @@ export class SupabaseService {
 
   async createDiaCerrado(fecha: string, fechaHasta: string | null, motivo: string) {
     const { data, error } = await this.supabase
-      .from('dias_bloqueados')
+      .from('dias_cerrados')
       .insert({ fecha, fecha_hasta: fechaHasta || null, motivo })
       .select()
       .single();
@@ -230,7 +230,7 @@ export class SupabaseService {
 
   async deleteDiaCerrado(id: number) {
     const { error } = await this.supabase
-      .from('dias_bloqueados')
+      .from('dias_cerrados')
       .delete()
       .eq('id', id);
     if (error) throw error;

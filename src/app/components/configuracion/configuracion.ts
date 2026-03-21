@@ -119,6 +119,8 @@ export class ConfiguracionComponent implements OnInit {
     this.mensajeErrorDatos = '';
   }
 
+  // ── DIAS CERRADOS ──────────────────────────────────────
+
   async agregarDiaCerrado() {
     this.mensajeErrorDiasCerrados = '';
     if (!this.nuevoDiaCerrado.fecha) {
@@ -141,7 +143,7 @@ export class ConfiguracionComponent implements OnInit {
       this.diasCerrados.sort((a, b) => a.fecha.localeCompare(b.fecha));
       this.mostrarFormDiaCerrado = false;
       this.nuevoDiaCerrado = { fecha: '', fecha_hasta: '', motivo: '' };
-      this.mostrarMensaje('✅ Día cerrado agregado.', 'diasCerrados' as any);
+      this.mostrarMensaje('✅ Día/período de cierre agregado.', 'diasCerrados' as any);
     } catch (e) {
       this.mensajeErrorDiasCerrados = '❌ Error al agregar.';
       this.cdr.detectChanges();
@@ -149,7 +151,7 @@ export class ConfiguracionComponent implements OnInit {
   }
 
   async eliminarDiaCerrado(id: number) {
-    if (!confirm('¿Eliminar este día cerrado?')) return;
+    if (!confirm('¿Eliminar este día/período de cierre?')) return;
     try {
       await this.supabase.deleteDiaCerrado(id);
       this.diasCerrados = this.diasCerrados.filter(d => d.id !== id);
@@ -158,6 +160,12 @@ export class ConfiguracionComponent implements OnInit {
       this.mensajeErrorDiasCerrados = '❌ Error al eliminar.';
       this.cdr.detectChanges();
     }
+  }
+
+  esDiaVencido(dia: any): boolean {
+    const hoy = new Date().toLocaleDateString('en-CA');
+    const fechaFin = dia.fecha_hasta || dia.fecha;
+    return fechaFin < hoy;
   }
 
   formatearFechaStr(fecha: string): string {

@@ -121,13 +121,13 @@
     <div *ngIf="mensajeDiasCerrados" class="alerta exito">{{ mensajeDiasCerrados }}</div>
     <div *ngIf="mensajeErrorDiasCerrados" class="alerta error">{{ mensajeErrorDiasCerrados }}</div>
     <div class="acordeon-header" (click)="acordeonDiasCerrados = !acordeonDiasCerrados">
-      <span>🚫 Días cerrados</span>
+      <span>🚫 Días de cierre</span>
       <span class="chevron" [class.abierto]="acordeonDiasCerrados">›</span>
     </div>
     <div class="acordeon-body" [class.visible]="acordeonDiasCerrados">
       <div class="seccion-header">
         <button class="btn-primary" (click)="mostrarFormDiaCerrado = !mostrarFormDiaCerrado; mensajeErrorDiasCerrados = ''; nuevoDiaCerrado = { fecha: '', fecha_hasta: '', motivo: '' }">
-          {{ mostrarFormDiaCerrado ? '↩️ Cancelar' : '➕ Agregar día' }}
+          {{ mostrarFormDiaCerrado ? '↩️ Cancelar' : '➕ Nuevo día/período cierre' }}
         </button>
       </div>
 
@@ -154,7 +154,7 @@
           <tr><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Acciones</th></tr>
         </thead>
         <tbody>
-          <tr *ngFor="let dia of diasCerrados">
+          <tr *ngFor="let dia of diasCerrados" [class.vencido]="esDiaVencido(dia)">
             <td>{{ formatearFechaStr(dia.fecha) }}</td>
             <td>{{ dia.fecha_hasta ? formatearFechaStr(dia.fecha_hasta) : '—' }}</td>
             <td>{{ dia.motivo || '—' }}</td>
