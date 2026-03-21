@@ -341,12 +341,12 @@ tr.vencido td { background: #fff7ed; }
     &:focus { outline: none; border-color: #3b82f6; background: white; }
   }
   .mensaje-preview {
-    background: #f8fafc;
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-top: 8px;
-    font-size: 0.85rem;
-    color: #334155;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: #334155;
 
     .preview-label {
       font-size: 0.75rem;
@@ -358,6 +358,7 @@ tr.vencido td { background: #fff7ed; }
   
   textarea {
     width: 100%;
+    max-width: 600px;
     resize: none;
     box-sizing: border-box;
     padding: 9px 12px;
