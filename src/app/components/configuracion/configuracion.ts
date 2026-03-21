@@ -118,6 +118,14 @@ export class ConfiguracionComponent implements OnInit {
     await this.supabase.updateHorario(horario.id, { activo: horario.activo });
   }
 
+  toggleFormHorario() {
+    this.mostrarFormHorario = !this.mostrarFormHorario;
+    this.mensajeErrorHorarios = '';
+    if (!this.mostrarFormHorario) {
+      this.nuevoHorario = { dia_semana: 1, hora_inicio: '08:00', hora_fin: '12:00', activo: true };
+    }
+  }
+
   async guardarHorario(horario: any) {
     this.mensajeErrorHorarios = '';
     if (!this.validarHorario(horario.hora_inicio, horario.hora_fin)) {
@@ -240,6 +248,14 @@ export class ConfiguracionComponent implements OnInit {
     servicio.activo = !servicio.activo;
     await this.supabase.updateServicio(servicio.id, { activo: servicio.activo });
     this.cdr.detectChanges();
+  }
+
+  toggleFormServicio() {
+    this.mostrarFormServicio = !this.mostrarFormServicio;
+    this.mensajeErrorServicios = '';
+    if (!this.mostrarFormServicio) {
+      this.nuevoServicio = { nombre: '', precio: null, duracion_minutos: null, activo: true };
+    }
   }
 
   async agregarServicio() {

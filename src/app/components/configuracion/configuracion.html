@@ -45,7 +45,7 @@
     </div>
     <div class="acordeon-body" [class.visible]="acordeonHorarios">
       <div class="seccion-header">
-        <button class="btn-primary" (click)="mostrarFormHorario = !mostrarFormHorario; mensajeErrorHorarios = ''">
+        <button class="btn-primary" (click)="toggleFormHorario()">
           {{ mostrarFormHorario ? '↩️ Cancelar' : '➕ Nuevo horario' }}
         </button>
       </div>
@@ -125,9 +125,9 @@
     </div>
     <div class="acordeon-body" [class.visible]="acordeonServicios">
       <div class="seccion-header">
-      <button class="btn-primary" (click)="mostrarFormServicio = !mostrarFormServicio; mensajeErrorServicios = ''">
-        {{ mostrarFormServicio ? '↩️ Cancelar' : '➕ Nuevo servicio' }}
-      </button>
+        <button class="btn-primary" (click)="toggleFormServicio()">
+          {{ mostrarFormServicio ? '↩️ Cancelar' : '➕ Nuevo servicio' }}
+        </button>
       </div>
 
       <div *ngIf="mostrarFormServicio" class="form-nuevo-horario">
