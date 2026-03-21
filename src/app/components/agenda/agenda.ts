@@ -317,6 +317,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
     this.errorEditarTurno = '';
     if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
       this.errorEditarTurno = 'Completá todos los campos.';
+      this.cdr.detectChanges();
       return;
     }
     const servicio = this.nuevoServicio;
@@ -331,6 +332,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
 
     if (sinCambios) {
       this.errorEditarTurno = 'No realizaste ningún cambio.';
+      this.cdr.detectChanges();
       return;
     }
     */
@@ -345,6 +347,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
       if (turnoOriginalFecha > new Date()) {
         if (fechaHora <= new Date()) {
           this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
+          this.cdr.detectChanges();
           return;
         }
       }

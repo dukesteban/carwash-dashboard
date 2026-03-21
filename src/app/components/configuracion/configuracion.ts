@@ -81,10 +81,12 @@ export class ConfiguracionComponent implements OnInit {
     this.mensajeDatos = '';
     if (this.puestosXTurno < 1 || this.puestosXTurno > 3 || !Number.isInteger(this.puestosXTurno)) {
       this.mensajeErrorDatos = '❌ Los puestos por turno deben ser un número entre 1 y 3.';
+      this.cdr.detectChanges();
       return;
     }
     if (this.horasLimiteCancelacion < 1 || this.horasLimiteCancelacion > 48 || !Number.isInteger(this.horasLimiteCancelacion)) {
       this.mensajeErrorDatos = '❌ El límite de cancelación debe ser entre 1 y 48 horas.';
+      this.cdr.detectChanges();
       return;
     }
     this.guardando = true;
@@ -140,6 +142,7 @@ export class ConfiguracionComponent implements OnInit {
       this.mostrarMensaje('✅ Horario actualizado.', 'horarios');
     } catch (e) {
       this.mensajeErrorHorarios = '❌ Error al actualizar el horario.';
+      this.cdr.detectChanges();
     }
   }
 
@@ -171,6 +174,7 @@ export class ConfiguracionComponent implements OnInit {
       this.mostrarMensaje('✅ Horario agregado.', 'horarios');
     } catch (e) {
       this.mensajeErrorHorarios = '❌ Error al agregar el horario.';
+      this.cdr.detectChanges();
     }
   }
 
@@ -227,6 +231,7 @@ export class ConfiguracionComponent implements OnInit {
       this.mostrarMensaje('✅ Servicio actualizado.', 'servicios');
     } catch (e) {
       this.mensajeErrorServicios = '❌ Error al actualizar el servicio.';
+      this.cdr.detectChanges();
     }
   }
 
@@ -253,6 +258,7 @@ export class ConfiguracionComponent implements OnInit {
 
       if (exist) {
         this.mensajeErrorServicios = '⚠️ Ya existe un servicio con ese nombre.';
+        this.cdr.detectChanges();
         return;
       }
       const nuevo = await this.supabase.createServicio(this.nuevoServicio);
@@ -262,6 +268,7 @@ export class ConfiguracionComponent implements OnInit {
       this.mostrarMensaje('✅ Servicio agregado.', 'servicios');
     } catch (e) {
       this.mensajeErrorServicios = '❌ Error al agregar el servicio.';
+      this.cdr.detectChanges();
     }
   }
 
@@ -273,7 +280,16 @@ export class ConfiguracionComponent implements OnInit {
       this.mostrarMensaje('✅ Servicio eliminado.', 'servicios');
     } catch (e) {
       this.mensajeErrorServicios = '❌ Error al eliminar. Puede tener turnos asociados.';
+      this.cdr.detectChanges();
     }
+  }
+
+  cancelarServicio(servicio: any) {
+    servicio.nombre = servicio._nombre_orig;
+    servicio.precio = servicio._precio_orig;
+    servicio.duracion_minutos = servicio._duracion_orig;
+    servicio.editando = false;
+    this.mensajeErrorServicios = '';
   }
 
   // ── CONTRASEÑA ─────────────────────────────────────────────
@@ -298,18 +314,22 @@ export class ConfiguracionComponent implements OnInit {
 
     if (this.cambiosHoy >= 2) {
       this.mensajeErrorPassword = '❌ Ya cambiaste la contraseña 2 veces hoy. Intentá mañana.';
+      this.cdr.detectChanges();
       return;
     }
     if (!this.passwordActual || !this.passwordNueva || !this.passwordRepetir) {
       this.mensajeErrorPassword = '❌ Completá todos los campos.';
+      this.cdr.detectChanges();
       return;
     }
     if (this.passwordNueva !== this.passwordRepetir) {
       this.mensajeErrorPassword = '❌ La nueva contraseña no coincide.';
+      this.cdr.detectChanges();
       return;
     }
     if (this.passwordNueva.length < 6) {
       this.mensajeErrorPassword = '❌ La contraseña debe tener al menos 6 caracteres.';
+      this.cdr.detectChanges();
       return;
     }
 
@@ -321,6 +341,7 @@ export class ConfiguracionComponent implements OnInit {
       if (!ok) {
         this.mensajeErrorPassword = '❌ La contraseña actual es incorrecta.';
         this.guardandoPassword = false;
+        this.cdr.detectChanges();
         return;
       }
       const hashNueva = await this.auth.sha256(this.passwordNueva);

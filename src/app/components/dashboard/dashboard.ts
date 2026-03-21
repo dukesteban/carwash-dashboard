@@ -189,6 +189,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.errorEditarTurno = '';
     if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
       this.errorEditarTurno = 'Completá todos los campos.';
+      this.cdr.detectChanges();
       return;
     }
     const servicio = this.nuevoServicio;
@@ -203,6 +204,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     if (sinCambios) {
       this.errorEditarTurno = 'No realizaste ningún cambio.';
+      this.cdr.detectChanges();
       return;
     }
     */
@@ -217,6 +219,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (turnoOriginalFecha > new Date()) {
         if (fechaHora <= new Date()) {
           this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
+          this.cdr.detectChanges();
           return;
         }
       }
@@ -356,10 +359,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   async guardarNuevoTurno() {
     this.errorNuevoTurno = '';
-    if (!this.clienteSeleccionadoNuevo) { this.errorNuevoTurno = 'Seleccioná un cliente.'; return; }
-    if (!this.nuevoTurnoFecha) { this.errorNuevoTurno = 'Ingresá una fecha.'; return; }
-    if (!this.nuevoTurnoHora) { this.errorNuevoTurno = 'Ingresá una hora.'; return; }
-    if (!this.nuevoTurnoServicioId) { this.errorNuevoTurno = 'Seleccioná un servicio.'; return; }
+    if (!this.clienteSeleccionadoNuevo) {
+      this.errorNuevoTurno = '❌ Seleccioná un cliente.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (!this.nuevoTurnoFecha) {
+      this.errorNuevoTurno = '❌ Ingresá una fecha.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (!this.nuevoTurnoHora) {
+      this.errorNuevoTurno = '❌ Ingresá una hora.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (!this.nuevoTurnoServicioId) {
+      this.errorNuevoTurno = '❌ Seleccioná un servicio.';
+      this.cdr.detectChanges();
+      return;
+    }
 
     const servicio = this.nuevoTurnoServicio;
     if (!servicio) return;
@@ -434,6 +453,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const duplicado = await this.supabase.verificarNombreDuplicado(nombreNorm);
     if (duplicado) {
       this.errorNuevoTurno = '❌ Ya existe un cliente con ese nombre.';
+      this.cdr.detectChanges();
       return;
     }
 

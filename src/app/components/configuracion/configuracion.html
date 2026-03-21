@@ -125,9 +125,9 @@
     </div>
     <div class="acordeon-body" [class.visible]="acordeonServicios">
       <div class="seccion-header">
-        <button class="btn-primary" (click)="mostrarFormServicio = !mostrarFormServicio">
-          {{ mostrarFormServicio ? '↩️ Cancelar' : '➕ Nuevo servicio' }}
-        </button>
+      <button class="btn-primary" (click)="mostrarFormServicio = !mostrarFormServicio; mensajeErrorServicios = ''">
+        {{ mostrarFormServicio ? '↩️ Cancelar' : '➕ Nuevo servicio' }}
+      </button>
       </div>
 
       <div *ngIf="mostrarFormServicio" class="form-nuevo-horario">
@@ -179,9 +179,7 @@
                   (click)="servicio._nombre_orig = servicio.nombre; servicio._precio_orig = servicio.precio; servicio._duracion_orig = servicio.duracion_minutos; servicio.editando = true" 
                   title="Editar">✏️</button>
                 <button *ngIf="servicio.editando" class="btn-icon" (click)="guardarServicio(servicio)" title="Guardar">💾</button>
-                <button *ngIf="servicio.editando" class="btn-icon" 
-                  (click)="servicio.nombre = servicio._nombre_orig; servicio.precio = servicio._precio_orig; servicio.duracion_minutos = servicio._duracion_orig; servicio.editando = false" 
-                  title="Cancelar">↩️</button>
+                <button *ngIf="servicio.editando" class="btn-icon" (click)="cancelarServicio(servicio)" title="Cancelar">↩️</button>
                 <button class="btn-icon" (click)="eliminarServicio(servicio.id)" title="Eliminar">🗑️</button>
               </td>
             </tr>
