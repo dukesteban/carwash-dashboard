@@ -29,6 +29,7 @@ export class ConfiguracionComponent implements OnInit {
   guardando = false;
   mensajeDatos = '';
   mensajeErrorDatos = '';
+  horasLimiteCancelacion = 12;
 
   // Horarios
   horarios: any[] = [];
@@ -68,6 +69,7 @@ export class ConfiguracionComponent implements OnInit {
     this.nombreNegocio = config.find((c: any) => c.clave === 'nombre_negocio')?.valor || '';
     this.descripcion = config.find((c: any) => c.clave === 'descripcion')?.valor || '';
     this.puestosXTurno = parseInt(config.find((c: any) => c.clave === 'puestos_por_turno')?.valor) || 1;
+    this.horasLimiteCancelacion = parseInt(config.find((c: any) => c.clave === 'horas_limite_cancelacion')?.valor) || 12;
     this.horarios = await this.supabase.getHorarios();
     this.servicios = await this.supabase.getServicios();
     this.cdr.detectChanges();
@@ -81,11 +83,16 @@ export class ConfiguracionComponent implements OnInit {
       this.mensajeErrorDatos = '❌ Los puestos por turno deben ser un número entre 1 y 3.';
       return;
     }
+    if (this.horasLimiteCancelacion < 1 || this.horasLimiteCancelacion > 48 || !Number.isInteger(this.horasLimiteCancelacion)) {
+      this.mensajeErrorDatos = '❌ El límite de cancelación debe ser entre 1 y 48 horas.';
+      return;
+    }
     this.guardando = true;
     try {
       await this.supabase.upsertConfiguracion('nombre_negocio', this.nombreNegocio);
       await this.supabase.upsertConfiguracion('descripcion', this.descripcion);
       await this.supabase.upsertConfiguracion('puestos_por_turno', String(this.puestosXTurno));
+      await this.supabase.upsertConfiguracion('horas_limite_cancelacion', String(this.horasLimiteCancelacion));
       this.editandoDatos = false;
       this.mostrarMensaje('✅ Configuración guardada.', 'datos');
     } catch (e) {
@@ -104,22 +111,36 @@ export class ConfiguracionComponent implements OnInit {
   // ── HORARIOS ───────────────────────────────────────────────
 
   async toggleHorario(horario: any) {
+    this.mensajeErrorHorarios = '';
     horario.activo = !horario.activo;
     await this.supabase.updateHorario(horario.id, { activo: horario.activo });
   }
 
   async guardarHorario(horario: any) {
+    this.mensajeErrorHorarios = '';
     if (!this.validarHorario(horario.hora_inicio, horario.hora_fin)) {
       this.mensajeErrorHorarios = '❌ La hora de inicio debe ser menor que la hora de fin.';
+      this.cdr.detectChanges();
       return;
     }
-    await this.supabase.updateHorario(horario.id, {
-      hora_inicio: horario.hora_inicio,
-      hora_fin: horario.hora_fin,
-      activo: horario.activo
-    });
-    horario.editando = false;
-    this.mostrarMensaje('✅ Horario actualizado.', 'horarios');
+    try {
+      const horarios = await this.supabase.getHorarios();
+      if (this.seSuperpone(horario, horarios)) {
+        this.mensajeErrorHorarios = '⚠️ El rango horario se superpone con otro existente.';
+        this.cdr.detectChanges();
+        return;
+      }
+
+      await this.supabase.updateHorario(horario.id, {
+        hora_inicio: horario.hora_inicio,
+        hora_fin: horario.hora_fin,
+        activo: horario.activo
+      });
+      horario.editando = false;
+      this.mostrarMensaje('✅ Horario actualizado.', 'horarios');
+    } catch (e) {
+      this.mensajeErrorHorarios = '❌ Error al actualizar el horario.';
+    }
   }
 
   async eliminarHorario(id: number) {
@@ -129,15 +150,28 @@ export class ConfiguracionComponent implements OnInit {
   }
 
   async agregarHorario() {
+    this.mensajeErrorHorarios = '';
     if (!this.validarHorario(this.nuevoHorario.hora_inicio, this.nuevoHorario.hora_fin)) {
       this.mensajeErrorHorarios = '❌ La hora de inicio debe ser menor que la hora de fin.';
+      this.cdr.detectChanges();
       return;
     }
-    const nuevo = await this.supabase.createHorario(this.nuevoHorario);
-    this.horarios.push(nuevo);
-    this.mostrarFormHorario = false;
-    this.nuevoHorario = { dia_semana: 1, hora_inicio: '08:00', hora_fin: '12:00', activo: true };
-    this.mostrarMensaje('✅ Horario agregado.', 'horarios');
+    try {
+      const horarios = await this.supabase.getHorarios();
+      if (this.seSuperpone(this.nuevoHorario, horarios)) {
+        this.mensajeErrorHorarios = '⚠️ El rango horario se superpone con otro existente.';
+        this.cdr.detectChanges();
+        return;
+      }
+
+      const nuevo = await this.supabase.createHorario(this.nuevoHorario);
+      this.horarios.push(nuevo);
+      this.mostrarFormHorario = false;
+      this.nuevoHorario = { dia_semana: 1, hora_inicio: '08:00', hora_fin: '12:00', activo: true };
+      this.mostrarMensaje('✅ Horario agregado.', 'horarios');
+    } catch (e) {
+      this.mensajeErrorHorarios = '❌ Error al agregar el horario.';
+    }
   }
 
   getNombreDia(num: number): string {
@@ -156,10 +190,33 @@ export class ConfiguracionComponent implements OnInit {
     this.mensajeErrorHorarios = '';
   }
 
+  seSuperpone(horario: any, otros: any[]): boolean {
+    return otros.some(h =>
+      h.dia_semana === horario.dia_semana &&
+      h.id !== horario.id &&
+      horario.hora_inicio < h.hora_fin &&
+      horario.hora_fin > h.hora_inicio
+    );
+  }
+
   // ── SERVICIOS ──────────────────────────────────────────────
 
   async guardarServicio(servicio: any) {
+    this.mensajeErrorServicios = '';
     try {
+      const servicios = await this.supabase.getServicios();
+      const exist = servicios.some(
+        (s: any) =>
+          s.nombre.trim().toLowerCase() === servicio.nombre.trim().toLowerCase() &&
+          s.id !== servicio.id
+      );
+
+      if (exist) {
+        this.mensajeErrorServicios = '⚠️ Ya existe un servicio con ese nombre.';
+        this.cdr.detectChanges();
+        return;
+      }
+
       await this.supabase.updateServicio(servicio.id, {
         nombre: servicio.nombre,
         precio: servicio.precio,
@@ -180,11 +237,24 @@ export class ConfiguracionComponent implements OnInit {
   }
 
   async agregarServicio() {
+    this.mensajeErrorServicios = '';
     if (!this.nuevoServicio.nombre || !this.nuevoServicio.precio || !this.nuevoServicio.duracion_minutos) {
       this.mensajeErrorServicios = '❌ Completá todos los campos.';
+      this.cdr.detectChanges();
       return;
     }
     try {
+      const servicios = await this.supabase.getServicios();
+      const exist = servicios.some(
+        (s: any) =>
+          s.nombre.trim().toLowerCase() === this.nuevoServicio.nombre.trim().toLowerCase() &&
+          s.id !== this.nuevoServicio.id
+      );
+
+      if (exist) {
+        this.mensajeErrorServicios = '⚠️ Ya existe un servicio con ese nombre.';
+        return;
+      }
       const nuevo = await this.supabase.createServicio(this.nuevoServicio);
       this.servicios.push(nuevo);
       this.mostrarFormServicio = false;

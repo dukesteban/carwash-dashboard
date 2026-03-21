@@ -5,21 +5,25 @@
     <div *ngIf="mensajeDatos" class="alerta exito">{{ mensajeDatos }}</div>
     <div *ngIf="mensajeErrorDatos" class="alerta error">{{ mensajeErrorDatos }}</div>
     <div class="acordeon-header" (click)="acordeonDatos = !acordeonDatos">
-      <span>🏪 Datos del negocio</span>
+      <span>⚙️ General</span>
       <span class="chevron" [class.abierto]="acordeonDatos">›</span>
     </div>
     <div class="acordeon-body" [class.visible]="acordeonDatos">
       <div class="campo">
         <label>Nombre del negocio</label>
-        <input type="text" [(ngModel)]="nombreNegocio" [readonly]="!editandoDatos" placeholder="Nombre" />
+        <input type="text" [(ngModel)]="nombreNegocio" [readonly]="!editandoDatos" placeholder="Nombre" (ngModelChange)="mensajeErrorDatos = ''"/>
       </div>
       <div class="campo">
         <label>Descripción</label>
-        <input type="text" [(ngModel)]="descripcion" [readonly]="!editandoDatos" placeholder="Descripción" />
+        <input type="text" [(ngModel)]="descripcion" [readonly]="!editandoDatos" placeholder="Descripción" (ngModelChange)="mensajeErrorDatos = ''"/>
       </div>
       <div class="campo">
         <label>Puestos por turno</label>
-        <input type="number" min="1" max="3" [(ngModel)]="puestosXTurno" [readonly]="!editandoDatos" />
+        <input type="number" min="1" max="3" [(ngModel)]="puestosXTurno" [readonly]="!editandoDatos" (ngModelChange)="mensajeErrorDatos = ''"/>
+      </div>
+      <div class="campo">
+        <label>Horas límite para cancelar</label>
+        <input type="number" min="1" max="48" [(ngModel)]="horasLimiteCancelacion" [readonly]="!editandoDatos" (ngModelChange)="mensajeErrorDatos = ''"/>
       </div>
       <div class="botones-edicion">
         <button *ngIf="!editandoDatos" class="btn-primary" (click)="editandoDatos = true">✏️ Editar</button>
@@ -41,7 +45,7 @@
     </div>
     <div class="acordeon-body" [class.visible]="acordeonHorarios">
       <div class="seccion-header">
-        <button class="btn-primary" (click)="mostrarFormHorario = !mostrarFormHorario">
+        <button class="btn-primary" (click)="mostrarFormHorario = !mostrarFormHorario; mensajeErrorHorarios = ''">
           {{ mostrarFormHorario ? '↩️ Cancelar' : '➕ Nuevo horario' }}
         </button>
       </div>
@@ -50,17 +54,17 @@
         <div class="fila">
           <div class="campo">
             <label>Día</label>
-            <select [(ngModel)]="nuevoHorario.dia_semana">
+            <select [(ngModel)]="nuevoHorario.dia_semana" (ngModelChange)="mensajeErrorHorarios = ''">
               <option *ngFor="let dia of diasSemana; let i = index" [value]="i">{{ dia }}</option>
             </select>
           </div>
           <div class="campo">
             <label>Desde</label>
-            <input type="time" [(ngModel)]="nuevoHorario.hora_inicio" />
+            <input type="time" [(ngModel)]="nuevoHorario.hora_inicio" (ngModelChange)="mensajeErrorHorarios = ''"/>
           </div>
           <div class="campo">
             <label>Hasta</label>
-            <input type="time" [(ngModel)]="nuevoHorario.hora_fin" />
+            <input type="time" [(ngModel)]="nuevoHorario.hora_fin" (ngModelChange)="mensajeErrorHorarios = ''"/>
           </div>
           <button class="btn-primary" (click)="agregarHorario()">➕ Agregar</button>
         </div>
@@ -76,8 +80,16 @@
           <tbody>
             <tr *ngFor="let horario of horarios" [class.inactivo]="!horario.activo">
               <td>{{ getNombreDia(horario.dia_semana) }}</td>
-              <td><input type="time" [(ngModel)]="horario.hora_inicio" class="input-hora" [readonly]="!horario.editando" /></td>
-              <td><input type="time" [(ngModel)]="horario.hora_fin" class="input-hora" [readonly]="!horario.editando" /></td>
+              <td>
+                <input type="time" [(ngModel)]="horario.hora_inicio"
+                      (ngModelChange)="mensajeErrorHorarios = ''"
+                      class="input-hora" [readonly]="!horario.editando" />
+              </td>
+              <td>
+                <input type="time" [(ngModel)]="horario.hora_fin"
+                      (ngModelChange)="mensajeErrorHorarios = ''"
+                      class="input-hora" [readonly]="!horario.editando" />
+              </td>
               <td>
                 <label class="toggle">
                   <input type="checkbox" [checked]="horario.activo" (change)="toggleHorario(horario)" />
@@ -122,15 +134,15 @@
         <div class="fila">
           <div class="campo">
             <label>Nombre</label>
-            <input type="text" [(ngModel)]="nuevoServicio.nombre" placeholder="Nombre servicio" />
+            <input type="text" [(ngModel)]="nuevoServicio.nombre" placeholder="Nombre servicio" (ngModelChange)="mensajeErrorServicios = ''"/>
           </div>
           <div class="campo">
             <label>Precio ($)</label>
-            <input type="number" [(ngModel)]="nuevoServicio.precio" placeholder="10000" />
+            <input type="number" [(ngModel)]="nuevoServicio.precio" placeholder="10000" (ngModelChange)="mensajeErrorServicios = ''"/>
           </div>
           <div class="campo">
             <label>Duración (min)</label>
-            <input type="number" [(ngModel)]="nuevoServicio.duracion_minutos" placeholder="60" />
+            <input type="number" [(ngModel)]="nuevoServicio.duracion_minutos" placeholder="60" (ngModelChange)="mensajeErrorServicios = ''"/>
           </div>
           <button class="btn-primary" (click)="agregarServicio()">➕ Agregar</button>
         </div>
