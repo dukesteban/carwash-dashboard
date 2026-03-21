@@ -31,6 +31,14 @@ export class ConfiguracionComponent implements OnInit {
   mensajeErrorDatos = '';
   horasLimiteCancelacion = 12;
 
+  // Días cerrados
+  acordeonDiasCerrados = false;
+  diasCerrados: any[] = [];
+  nuevoDiaCerrado = { fecha: '', fecha_hasta: '', motivo: '' };
+  mostrarFormDiaCerrado = false;
+  mensajeDiasCerrados = '';
+  mensajeErrorDiasCerrados = '';
+
   // Horarios
   horarios: any[] = [];
   diasSemana = DIAS_SEMANA;
@@ -70,6 +78,7 @@ export class ConfiguracionComponent implements OnInit {
     this.descripcion = config.find((c: any) => c.clave === 'descripcion')?.valor || '';
     this.puestosXTurno = parseInt(config.find((c: any) => c.clave === 'puestos_por_turno')?.valor) || 1;
     this.horasLimiteCancelacion = parseInt(config.find((c: any) => c.clave === 'horas_limite_cancelacion')?.valor) || 12;
+    this.diasCerrados = await this.supabase.getDiasCerrados();
     this.horarios = await this.supabase.getHorarios();
     this.servicios = await this.supabase.getServicios();
     this.cdr.detectChanges();
@@ -108,6 +117,53 @@ export class ConfiguracionComponent implements OnInit {
     await this.cargarDatos();
     this.editandoDatos = false;
     this.mensajeErrorDatos = '';
+  }
+
+  async agregarDiaCerrado() {
+    this.mensajeErrorDiasCerrados = '';
+    if (!this.nuevoDiaCerrado.fecha) {
+      this.mensajeErrorDiasCerrados = '❌ Seleccioná una fecha.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (this.nuevoDiaCerrado.fecha_hasta && this.nuevoDiaCerrado.fecha_hasta < this.nuevoDiaCerrado.fecha) {
+      this.mensajeErrorDiasCerrados = '❌ La fecha hasta debe ser mayor que la fecha desde.';
+      this.cdr.detectChanges();
+      return;
+    }
+    try {
+      const nuevo = await this.supabase.createDiaCerrado(
+        this.nuevoDiaCerrado.fecha,
+        this.nuevoDiaCerrado.fecha_hasta || null,
+        this.nuevoDiaCerrado.motivo
+      );
+      this.diasCerrados.push(nuevo);
+      this.diasCerrados.sort((a, b) => a.fecha.localeCompare(b.fecha));
+      this.mostrarFormDiaCerrado = false;
+      this.nuevoDiaCerrado = { fecha: '', fecha_hasta: '', motivo: '' };
+      this.mostrarMensaje('✅ Día cerrado agregado.', 'diasCerrados' as any);
+    } catch (e) {
+      this.mensajeErrorDiasCerrados = '❌ Error al agregar.';
+      this.cdr.detectChanges();
+    }
+  }
+
+  async eliminarDiaCerrado(id: number) {
+    if (!confirm('¿Eliminar este día cerrado?')) return;
+    try {
+      await this.supabase.deleteDiaCerrado(id);
+      this.diasCerrados = this.diasCerrados.filter(d => d.id !== id);
+      this.cdr.detectChanges();
+    } catch (e) {
+      this.mensajeErrorDiasCerrados = '❌ Error al eliminar.';
+      this.cdr.detectChanges();
+    }
+  }
+
+  formatearFechaStr(fecha: string): string {
+    if (!fecha) return '';
+    const [y, m, d] = fecha.split('-');
+    return `${d}/${m}/${y}`;
   }
 
   // ── HORARIOS ───────────────────────────────────────────────
@@ -378,15 +434,17 @@ export class ConfiguracionComponent implements OnInit {
 
   // ── UTILS ──────────────────────────────────────────────────
 
-  mostrarMensaje(msg: string, seccion: 'datos' | 'horarios' | 'servicios') {
+  mostrarMensaje(msg: string, seccion: 'datos' | 'horarios' | 'servicios' | 'diasCerrados') {
     if (seccion === 'datos') { this.mensajeDatos = msg; this.mensajeErrorDatos = ''; }
     else if (seccion === 'horarios') { this.mensajeHorarios = msg; this.mensajeErrorHorarios = ''; }
-    else { this.mensajeServicios = msg; this.mensajeErrorServicios = ''; }
+    else if (seccion === 'servicios') { this.mensajeServicios = msg; this.mensajeErrorServicios = ''; }
+    else { this.mensajeDiasCerrados = msg; this.mensajeErrorDiasCerrados = ''; }
     this.cdr.detectChanges();
     setTimeout(() => {
       if (seccion === 'datos') this.mensajeDatos = '';
       else if (seccion === 'horarios') this.mensajeHorarios = '';
-      else this.mensajeServicios = '';
+      else if (seccion === 'servicios') this.mensajeServicios = '';
+      else this.mensajeDiasCerrados = '';
       this.cdr.detectChanges();
     }, 3000);
   }

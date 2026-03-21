@@ -208,6 +208,34 @@ export class SupabaseService {
     if (error) throw error;
   }
 
+  //DÍAS CERRADOS
+  async getDiasCerrados() {
+    const { data, error } = await this.supabase
+      .from('dias_cerrados')
+      .select('*')
+      .order('fecha', { ascending: true });
+    if (error) throw error;
+    return data;
+  }
+
+  async createDiaCerrado(fecha: string, fechaHasta: string | null, motivo: string) {
+    const { data, error } = await this.supabase
+      .from('dias_bloqueados')
+      .insert({ fecha, fecha_hasta: fechaHasta || null, motivo })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async deleteDiaCerrado(id: number) {
+    const { error } = await this.supabase
+      .from('dias_bloqueados')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  }
+
   // SERVICIOS
   async getServicios() {
     const { data, error } = await this.supabase
