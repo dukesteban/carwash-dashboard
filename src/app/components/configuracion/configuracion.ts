@@ -30,6 +30,8 @@ export class ConfiguracionComponent implements OnInit {
   mensajeDatos = '';
   mensajeErrorDatos = '';
   horasLimiteCancelacion = 12;
+  recordatorioCuando = 'dia_anterior';
+  recordatorioHora = '08:00';
 
   // Días cerrados
   acordeonDiasCerrados = false;
@@ -78,6 +80,8 @@ export class ConfiguracionComponent implements OnInit {
     this.descripcion = config.find((c: any) => c.clave === 'descripcion')?.valor || '';
     this.puestosXTurno = parseInt(config.find((c: any) => c.clave === 'puestos_por_turno')?.valor) || 1;
     this.horasLimiteCancelacion = parseInt(config.find((c: any) => c.clave === 'horas_limite_cancelacion')?.valor) || 12;
+    this.recordatorioCuando = config.find((c: any) => c.clave === 'recordatorio_cuando')?.valor || 'dia_anterior';
+    this.recordatorioHora = config.find((c: any) => c.clave === 'recordatorio_hora')?.valor || '08:00';
     this.diasCerrados = await this.supabase.getDiasCerrados();
     this.horarios = await this.supabase.getHorarios();
     this.servicios = await this.supabase.getServicios();
@@ -104,6 +108,8 @@ export class ConfiguracionComponent implements OnInit {
       await this.supabase.upsertConfiguracion('descripcion', this.descripcion);
       await this.supabase.upsertConfiguracion('puestos_por_turno', String(this.puestosXTurno));
       await this.supabase.upsertConfiguracion('horas_limite_cancelacion', String(this.horasLimiteCancelacion));
+      await this.supabase.upsertConfiguracion('recordatorio_cuando', this.recordatorioCuando);
+      await this.supabase.upsertConfiguracion('recordatorio_hora', this.recordatorioHora);
       this.editandoDatos = false;
       this.mostrarMensaje('✅ Configuración guardada.', 'datos');
     } catch (e) {

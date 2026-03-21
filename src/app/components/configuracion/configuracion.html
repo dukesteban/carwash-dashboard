@@ -25,6 +25,17 @@
         <label>Horas límite para cancelar</label>
         <input type="number" min="1" max="48" [(ngModel)]="horasLimiteCancelacion" [readonly]="!editandoDatos" (ngModelChange)="mensajeErrorDatos = ''"/>
       </div>
+      <div class="campo">
+        <label>Recordatorio de turno</label>
+        <select [(ngModel)]="recordatorioCuando" [disabled]="!editandoDatos">
+          <option value="mismo_dia">Mismo día</option>
+          <option value="dia_anterior">Día anterior</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Hora del recordatorio</label>
+        <input type="time" [(ngModel)]="recordatorioHora" [readonly]="!editandoDatos" />
+      </div>
       <div class="botones-edicion">
         <button *ngIf="!editandoDatos" class="btn-primary" (click)="editandoDatos = true">✏️ Editar</button>
         <button *ngIf="editandoDatos" class="btn-primary" (click)="guardarConfiguracion()" [disabled]="guardando">
