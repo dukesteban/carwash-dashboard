@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
@@ -10,7 +10,8 @@ import { SupabaseService } from '../../services/supabase';
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
+  private subscription: any;
   turnosHoy: any[] = [];
   todosTurnos: any[] = [];
   totalIngresos = 0;
@@ -67,6 +68,14 @@ export class DashboardComponent implements OnInit {
   async ngOnInit() {
     await this.cargarTurnos();
     this.cdr.detectChanges();
+    this.subscription = this.supabase.suscribirTurnos(() => {
+      this.cargarTurnos();
+    });
+    this.cdr.detectChanges();
+  }
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
   }
 
   async cargarTurnos() {
@@ -181,6 +190,7 @@ export class DashboardComponent implements OnInit {
     this.errorEditarTurno = '';
     if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
       this.errorEditarTurno = 'Completá todos los campos.';
+      this.cdr.detectChanges();
       return;
     }
     const servicio = this.nuevoServicio;
@@ -195,6 +205,7 @@ export class DashboardComponent implements OnInit {
 
     if (sinCambios) {
       this.errorEditarTurno = 'No realizaste ningún cambio.';
+      this.cdr.detectChanges();
       return;
     }
     */
@@ -209,6 +220,7 @@ export class DashboardComponent implements OnInit {
       if (turnoOriginalFecha > new Date()) {
         if (fechaHora <= new Date()) {
           this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
+          this.cdr.detectChanges();
           return;
         }
       }
@@ -347,63 +359,91 @@ export class DashboardComponent implements OnInit {
   }
 
   async guardarNuevoTurno() {
-    if (!this.clienteSeleccionadoNuevo) { this.errorNuevoTurno = 'Seleccioná un cliente.'; return; }
-    if (!this.nuevoTurnoFecha) { this.errorNuevoTurno = 'Ingresá una fecha.'; return; }
-    if (!this.nuevoTurnoHora) { this.errorNuevoTurno = 'Ingresá una hora.'; return; }
-    if (!this.nuevoTurnoServicioId) { this.errorNuevoTurno = 'Seleccioná un servicio.'; return; }
+    this.errorNuevoTurno = '';
+    if (!this.clienteSeleccionadoNuevo) {
+      this.errorNuevoTurno = '❌ Seleccioná un cliente.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (!this.nuevoTurnoFecha) {
+      this.errorNuevoTurno = '❌ Ingresá una fecha.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (!this.nuevoTurnoHora) {
+      this.errorNuevoTurno = '❌ Ingresá una hora.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (!this.nuevoTurnoServicioId) {
+      this.errorNuevoTurno = '❌ Seleccioná un servicio.';
+      this.cdr.detectChanges();
+      return;
+    }
 
     const servicio = this.nuevoTurnoServicio;
     if (!servicio) return;
 
-    // Calcular hora fin
-    const fechaHora = new Date(`${this.nuevoTurnoFecha}T${this.nuevoTurnoHora}`);
-    const fin = new Date(fechaHora);
-    fin.setMinutes(fin.getMinutes() + servicio.duracion_minutos);
-    const horaFin = `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
-
-    // Validar solapamiento
-    const solapados = await this.supabase.getTurnosSolapados(
-      this.nuevoTurnoFecha, this.nuevoTurnoHora, horaFin, 0
-    );
-    const puestos = await this.supabase.getPuestosXTurno();
-    if (solapados.length >= puestos) {
-      this.errorEditarTurno = puestos === 1
-        ? `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`
-        : `Ya se alcanzó el límite de ${puestos} turnos simultáneos para ese horario.`;
-      return;
-    }
-
-    // Validar horario de atención
-    const diaISO = new Date(this.nuevoTurnoFecha + 'T12:00:00').getDay();
-    const horariosDia = this.horarios.filter((hor: any) => hor.dia_semana === diaISO && hor.activo);
-    const dentroHorario = horariosDia.some((hor: any) =>
-      this.nuevoTurnoHora >= hor.hora_inicio.slice(0,5) && horaFin <= hor.hora_fin.slice(0,5)
-    );
-    if (!dentroHorario) {
-      this.errorNuevoTurno = 'El horario está fuera del horario de atención.';
-      return;
-    }
-
-    const telefono = this.clienteSeleccionadoNuevo.telefonos?.[0]?.telefono || '';
-
     this.guardandoNuevoTurno = true;
-    await this.supabase.crearTurnoManual({
-      cliente_id: this.clienteSeleccionadoNuevo.id,
-      cliente_nombre: this.clienteSeleccionadoNuevo.nombre,
-      cliente_telefono: telefono,
-      fecha: this.nuevoTurnoFecha,
-      hora: this.nuevoTurnoHora,
-      hora_inicio: this.nuevoTurnoHora,
-      hora_fin: horaFin,
-      servicio_id: servicio.id,
-      servicio_nombre: servicio.nombre,
-      precio: servicio.precio,
-      duracion_minutos: servicio.duracion_minutos,
-      estado: 'pendiente'
-    });
+
+    try {
+      // Calcular hora fin
+      const fechaHora = new Date(`${this.nuevoTurnoFecha}T${this.nuevoTurnoHora}`);
+      const fin = new Date(fechaHora);
+      fin.setMinutes(fin.getMinutes() + servicio.duracion_minutos);
+      const horaFin = `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
+
+      // Validar solapamiento
+      const solapados = await this.supabase.getTurnosSolapados(
+        this.nuevoTurnoFecha, this.nuevoTurnoHora, horaFin, 0
+      );
+      const puestos = await this.supabase.getPuestosXTurno();
+      if (solapados.length >= puestos) {
+        this.errorNuevoTurno = puestos === 1
+          ? `Ya hay un turno de ${solapados[0].cliente_nombre} a esa hora.`
+          : `Ya se alcanzó el límite de ${puestos} turnos simultáneos para ese horario.`;
+        this.guardandoNuevoTurno = false;
+        this.cdr.detectChanges();
+        return;
+      }
+
+      // Validar horario de atención
+      const diaISO = new Date(this.nuevoTurnoFecha + 'T12:00:00').getDay();
+      const horariosDia = this.horarios.filter((hor: any) => hor.dia_semana === diaISO && hor.activo);
+      const dentroHorario = horariosDia.some((hor: any) =>
+        this.nuevoTurnoHora >= hor.hora_inicio.slice(0,5) && horaFin <= hor.hora_fin.slice(0,5)
+      );
+      if (!dentroHorario) {
+        this.errorNuevoTurno = 'El horario está fuera del horario de atención.';
+        this.guardandoNuevoTurno = false;
+        this.cdr.detectChanges();
+        return;
+      }
+
+      const telefono = this.clienteSeleccionadoNuevo.telefonos?.[0]?.telefono || '';
+
+      await this.supabase.crearTurnoManual({
+        cliente_id: this.clienteSeleccionadoNuevo.id,
+        cliente_nombre: this.clienteSeleccionadoNuevo.nombre,
+        cliente_telefono: telefono,
+        fecha: this.nuevoTurnoFecha,
+        hora: this.nuevoTurnoHora,
+        hora_inicio: this.nuevoTurnoHora,
+        hora_fin: horaFin,
+        servicio_id: servicio.id,
+        servicio_nombre: servicio.nombre,
+        precio: servicio.precio,
+        duracion_minutos: servicio.duracion_minutos,
+        estado: 'pendiente'
+      });
+      await this.cargarTurnos();
+      this.cerrarModalNuevoTurno();
+    } catch (e) {
+      console.error('Error en guardarNuevoTurno:', e);
+      this.errorNuevoTurno = '❌ Error al guardar. Intentá de nuevo.';
+    }
+
     this.guardandoNuevoTurno = false;
-    await this.cargarTurnos();
-    this.cerrarModalNuevoTurno();
   }
 
   async crearYSeleccionarCliente() {
@@ -414,6 +454,7 @@ export class DashboardComponent implements OnInit {
     const duplicado = await this.supabase.verificarNombreDuplicado(nombreNorm);
     if (duplicado) {
       this.errorNuevoTurno = '❌ Ya existe un cliente con ese nombre.';
+      this.cdr.detectChanges();
       return;
     }
 
@@ -428,16 +469,19 @@ export class DashboardComponent implements OnInit {
   }
 
   async iniciarCancelacion() {
-    if (!this.turnoSeleccionado) return;
-    await this.supabase.updateEstadoTurno(this.turnoSeleccionado.id, 'cancelado');
-    if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?'))
-    {
-      this.motivoCancelacion = '';
-      this.mostrarPopupCancelacion = true;
-    } else
-    {
-      this.mostrarPopupCancelacion = false;
-      this.cerrarPopupCancelacion()
+    if (this.turnoSeleccionado) {
+      await this.supabase.updateEstadoTurno(this.turnoSeleccionado.id, 'cancelado');
+      if (this.turnoSeleccionado.cliente_telefono && 
+          confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?')) {
+        this.motivoCancelacion = '';
+        this.mostrarPopupCancelacion = true;
+      } else {
+        this.cerrarPopupCancelacion();
+        await this.cargarTurnos();
+      }
+    } else {
+      this.cerrarPopupCancelacion();
+      await this.cargarTurnos();
     }
     this.cdr.detectChanges();
   }
@@ -448,7 +492,7 @@ export class DashboardComponent implements OnInit {
     try {
       const fecha = this.formatearFecha(this.turnoSeleccionado.fecha);
       const hora = this.formatearHora(this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora);
-      const mensaje = `Estimado cliente:\n\n📆 El turno del día *${fecha}* a las *${hora}* hs ha sido *cancelado* debido a ${this.motivoCancelacion}.\nLamentamos los inconvenientes causados.😔\n_(Si deseas reservar otro turno escribí *2* o *reservar*)_\n\nAtte. ${this.nombreNegocio}`;
+      const mensaje = `Estimado cliente:\n\n📆 El turno del día *${fecha}* a las *${hora}* hs ha sido *cancelado* debido a ${this.motivoCancelacion}.\nLamentamos los inconvenientes causados.😔\n_(Si deseas reservar otro turno escribí *2* o *reservar*)_\n\nAtte. *${this.nombreNegocio}*`;
       await fetch('https://primary-production-4f919.up.railway.app/webhook/cancelacion-turno', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -466,17 +510,20 @@ export class DashboardComponent implements OnInit {
     this.mostrarPopupCancelacion = false;
     this.cerrarPopup();
     await this.cargarTurnos();
+    this.cdr.detectChanges();
   }
 
   cerrarPopupCancelacion() {
     this.mostrarPopupCancelacion = false;
     this.cerrarPopup();
-    this.cargarTurnos();
   }
 
   async iniciarNotificacionPostergacion(nuevaFecha: string, nuevaHora: string, nuevoServicio: string) {
-    if (!this.turnoSeleccionado?.cliente_telefono) return;
-    if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?')) {
+    const telefonoCliente = this.turnoSeleccionado?.cliente_telefono;
+    if (!telefonoCliente) {
+      this.cerrarPopup();
+      await this.cargarTurnos();
+    } else if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?')) {
       this.motivoPostergacion = '';
       this._nuevaFechaPostergacion = nuevaFecha;
       this._nuevaHoraPostergacion = nuevaHora;
@@ -493,7 +540,7 @@ export class DashboardComponent implements OnInit {
     this.enviandoMensajePostergacion = true;
     try {
       const fecha = this.formatearFecha(this._nuevaFechaPostergacion);
-      const mensaje = `Estimado cliente:\n\n📆 Tu turno ha sido *reprogramado* para el día *${fecha}* a las *${this._nuevaHoraPostergacion}* hs (para un: *${this._nuevoServicioPostergacion}*).${this.motivoPostergacion ? this.motivoPostergacion + '.' : ''}\nLamentamos los inconvenientes causados.😔\n_(Si deseas consultar/cancelar tus turnos escribí *3* o *turnos*)_\n\nAtte. ${this.nombreNegocio}`;
+      const mensaje = `Estimado cliente:\n\n📆 Tu turno ha sido *reprogramado* para el día *${fecha}* a las *${this._nuevaHoraPostergacion}* hs (para un: *${this._nuevoServicioPostergacion}*).${this.motivoPostergacion ? this.motivoPostergacion + '.' : ''}\nLamentamos los inconvenientes causados.😔\n_(Si deseas consultar/cancelar tus turnos escribí *3* o *turnos*)_\n\nAtte. *${this.nombreNegocio}*`;
       await fetch('https://primary-production-4f919.up.railway.app/webhook/cancelacion-turno', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -508,14 +555,13 @@ export class DashboardComponent implements OnInit {
       console.error('Error enviando mensaje:', e);
     }
     this.enviandoMensajePostergacion = false;
-    this.mostrarPopupPostergacion = false;
     this.cerrarPopupPostergacion();
     await this.cargarTurnos();
+    this.cdr.detectChanges();
   }
 
   cerrarPopupPostergacion() {
     this.mostrarPopupPostergacion = false;
     this.cerrarPopup();
-    this.cargarTurnos();
   }
 }

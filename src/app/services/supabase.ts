@@ -15,6 +15,16 @@ export class SupabaseService {
     );
   }
 
+  suscribirTurnos(callback: () => void) {
+    return this.supabase
+      .channel('turnos-cambios')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'turnos' },
+        () => callback()
+      )
+      .subscribe();
+  }
+  
   // USUARIOS
   async verificarUsuario(usuario: string, passwordHash: string): Promise<boolean> {
     const { data, error } = await this.supabase
@@ -193,6 +203,42 @@ export class SupabaseService {
   async deleteHorario(id: number) {
     const { error } = await this.supabase
       .from('horarios_atencion')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  //DÍAS CERRADOS
+  async getDiasCerrados() {
+    const { data, error } = await this.supabase
+      .from('dias_cerrados')
+      .select('*')
+      .order('fecha', { ascending: true });
+    if (error) throw error;
+    return data;
+  }
+
+  async createDiasCerrados(fecha: string, fechaHasta: string | null, motivo: string) {
+    const { data, error } = await this.supabase
+      .from('dias_cerrados')
+      .insert({ fecha, fecha_hasta: fechaHasta || null, motivo })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async updateDiasCerrados(id: number, fecha: string, fechaHasta: string | null, motivo: string) {
+    const { error } = await this.supabase
+      .from('dias_cerrados')
+      .update({ fecha, fecha_hasta: fechaHasta || null, motivo })
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async deleteDiasCerrados(id: number) {
+    const { error } = await this.supabase
+      .from('dias_cerrados')
       .delete()
       .eq('id', id);
     if (error) throw error;

@@ -201,12 +201,12 @@
         <div class="campo">
           <label>Cliente</label>
           <input type="text" [(ngModel)]="busquedaCliente"
-            (input)="buscarClientesNuevo()"
+            (ngModelChange)="errorNuevoTurno = ''; buscarClientesNuevo()"
             placeholder="Buscar cliente..." />
           <div *ngIf="clientesBuscados.length > 0" class="dropdown-clientes">
             <div *ngFor="let c of clientesBuscados"
               class="dropdown-item"
-              (click)="seleccionarClienteNuevo(c)">
+              (click)="seleccionarClienteNuevo(c); errorNuevoTurno = ''">
               <span class="dropdown-nombre">{{ c.nombre }}</span>
               <span class="dropdown-tel">{{ c.telefonos?.[0]?.telefono }}</span>
             </div>
@@ -217,13 +217,15 @@
           <!-- Crear cliente nuevo -->
           <div *ngIf="!clienteSeleccionadoNuevo && busquedaCliente.length > 0 && clientesBuscados.length === 0" class="crear-cliente">
             <span>No se encontró el cliente.</span>
-            <button class="btn-crear-cliente" (click)="mostrarFormNuevoCliente = true" *ngIf="!mostrarFormNuevoCliente">
+            <button class="btn-crear-cliente" (click)="mostrarFormNuevoCliente = true; errorNuevoTurno = ''" *ngIf="!mostrarFormNuevoCliente">
               + Crear "{{ busquedaCliente }}"
             </button>
             <div *ngIf="mostrarFormNuevoCliente" class="form-nuevo-cliente">
-              <input type="text" [(ngModel)]="nombreNuevoCliente" placeholder="Nombre completo" />
+              <input type="text" [(ngModel)]="nombreNuevoCliente"
+                (ngModelChange)="errorNuevoTurno = ''"
+                placeholder="Nombre completo" />
               <button class="btn-primary" (click)="crearYSeleccionarCliente()">Crear</button>
-              <button class="btn-secondary-sm" (click)="mostrarFormNuevoCliente = false">Cancelar</button>
+              <button class="btn-secondary-sm" (click)="mostrarFormNuevoCliente = false; errorNuevoTurno = ''">Cancelar</button>
             </div>
           </div>
         </div>
@@ -231,7 +233,8 @@
         <!-- Servicio -->
         <div class="campo">
           <label>Servicio</label>
-          <select [(ngModel)]="nuevoTurnoServicioId">
+          <select [(ngModel)]="nuevoTurnoServicioId"
+            (ngModelChange)="errorNuevoTurno = ''">
             <option [value]="null" disabled>Seleccioná un servicio</option>
             <option *ngFor="let s of servicios" [value]="s.id">
               {{ s.nombre }} — ${{ s.precio | number }} ({{ s.duracion_minutos }} min)
@@ -242,11 +245,13 @@
         <!-- Fecha y hora -->
         <div class="campo">
           <label>Fecha</label>
-          <input type="date" [(ngModel)]="nuevoTurnoFecha" />
+          <input type="date" [(ngModel)]="nuevoTurnoFecha"
+            (ngModelChange)="errorNuevoTurno = ''" />
         </div>
         <div class="campo">
           <label>Hora</label>
-          <input type="time" [(ngModel)]="nuevoTurnoHora" />
+          <input type="time" [(ngModel)]="nuevoTurnoHora"
+            (ngModelChange)="errorNuevoTurno = ''" />
         </div>
 
         <div *ngIf="errorNuevoTurno" class="error-msg">{{ errorNuevoTurno }}</div>
@@ -280,8 +285,8 @@
           Estimado cliente:<br>
           📆 El turno del día <b>{{ formatearFecha(turnoSeleccionado.fecha) }}</b> a las <b>{{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }}</b> hs ha sido <b>cancelado</b> debido a {{ motivoCancelacion || '[escribir razón]' }}.<br>
           Lamentamos los inconvenientes causados.😔<br>
-          <i>(Si deseas reservar otro turno escribí 2 o reservar)</i><br>
-          Atte. {{ nombreNegocio }}
+          <i>(Si deseas reservar otro turno escribí <b>2</b> o <b>reservar</b>)</i><br>
+          Atte. <b>{{ nombreNegocio }}</b>
           </p>
         </div>
       </div>
@@ -316,7 +321,7 @@
             <span *ngIf="motivoPostergacion">{{ motivoPostergacion }}.<br></span>
             Lamentamos los inconvenientes causados.😔<br>
             <i>(Si deseas consultar/cancelar tus turnos escribí <b>3</b> o <b>turnos</b>)</i><br>
-            Atte. {{ nombreNegocio }}
+            Atte. <b>{{ nombreNegocio }}</b>
           </p>
         </div>
       </div>

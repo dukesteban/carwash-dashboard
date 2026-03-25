@@ -21,6 +21,9 @@
 
   <!-- VISTA DÍA -->
   <div *ngIf="vista === 'dia'" class="grilla-contenedor">
+    <div *ngIf="esDiaCerrado(fechaActual)" class="aviso-cerrado">
+      🚫 Hoy cerrado
+    </div>
     <div class="grilla-dia">
       <div class="spacer-top"></div>
       <!-- Columna de horas -->
@@ -33,7 +36,7 @@
       </div>
 
       <!-- Columna de turnos -->
-      <div class="col-turnos" [style.min-width]="anchoPuestos" [style.height.px]="alturaTotal">
+      <div class="col-turnos" [style.min-width]="anchoPuestos" [style.height.px]="alturaTotal" [class.dia-cerrado]="esDiaCerrado(fechaActual)">
         <!-- Líneas de hora -->
         <div *ngFor="let hora of horasEtiquetas"
           class="linea-hora"
@@ -63,7 +66,8 @@
         <div *ngFor="let dia of diasDeSemana"
           class="col-dia-header"
           [style.min-width]="anchoPuestos"
-          [class.hoy]="esHoy(dia)">
+          [class.hoy]="esHoy(dia)"
+          [class.dia-cerrado]="esDiaCerrado(dia)">
           <div class="dia-nombre">{{ diasSemana[dia.getDay()] }}</div>
           <div class="dia-fecha" [class.dia-fecha-hoy]="esHoy(dia)">{{ formatearFechaCorta(dia) }}</div>
         </div>
@@ -81,7 +85,7 @@
         </div>
 
         <!-- Columnas por día -->
-        <div *ngFor="let dia of diasDeSemana" class="col-dia-cuerpo" [style.min-width]="anchoPuestos" [style.height.px]="alturaTotal">
+        <div *ngFor="let dia of diasDeSemana" class="col-dia-cuerpo" [style.min-width]="anchoPuestos" [style.height.px]="alturaTotal" [class.dia-cerrado]="esDiaCerrado(dia)">
           <!-- Líneas de hora -->
           <div *ngFor="let hora of horasEtiquetas"
             class="linea-hora"
@@ -226,8 +230,8 @@
           Estimado cliente:<br>
           📆 El turno del día <b>{{ formatearFechaStr(turnoSeleccionado.fecha) }}</b> a las <b>{{ formatearHora(turnoSeleccionado.hora_inicio || turnoSeleccionado.hora) }}</b> hs ha sido <b>cancelado</b> debido a {{ motivoCancelacion || '[escribir razón]' }}.<br>
           Lamentamos los inconvenientes causados.😔<br>
-          <i>(Si deseas reservar otro turno escribí 2 o reservar)</i><br>
-          Atte. {{ nombreNegocio }}
+          <i>(Si deseas reservar otro turno escribí <b>2</b> o <b>reservar</b>)</i><br>
+          Atte. <b>{{ nombreNegocio }}</b>
           </p>
         </div>
       </div>
@@ -262,7 +266,7 @@
             <span *ngIf="motivoPostergacion">{{ motivoPostergacion }}.<br></span>
             Lamentamos los inconvenientes causados.😔<br>
             <i>(Si deseas consultar/cancelar tus turnos escribí <b>3</b> o <b>turnos</b>)</i><br>
-            Atte. {{ nombreNegocio }}
+            Atte. <b>{{ nombreNegocio }}</b>
           </p>
         </div>
       </div>

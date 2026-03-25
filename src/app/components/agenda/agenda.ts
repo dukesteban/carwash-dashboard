@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
@@ -12,7 +12,9 @@ const PX_POR_MINUTO = 1.2;
   templateUrl: './agenda.html',
   styleUrls: ['./agenda.scss']
 })
-export class AgendaComponent implements OnInit {
+export class AgendaComponent implements OnInit, OnDestroy {
+  private subscription: any;
+
   vista: 'dia' | 'semana' = 'dia';
   fechaActual: Date = new Date();
   turnos: any[] = [];
@@ -28,6 +30,7 @@ export class AgendaComponent implements OnInit {
   turnoSeleccionado: any = null;
   mostrarPopup = false;
   puestosXTurno = 1;
+  diasCerrados: any[] = [];
   
   // Editar/Postergar
   modoEditarTurno = false;
@@ -56,6 +59,15 @@ export class AgendaComponent implements OnInit {
     await this.cargarHorarios();
     await this.cargarTurnos();
     this.puestosXTurno = await this.supabase.getPuestosXTurno();
+    this.diasCerrados = await this.supabase.getDiasCerrados();
+    this.subscription = this.supabase.suscribirTurnos(() => {
+      this.cargarTurnos();
+    });
+    this.cdr.detectChanges();
+  }
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
   }
 
   async cargarHorarios() {
@@ -73,6 +85,15 @@ export class AgendaComponent implements OnInit {
   async cargarTurnos() {
     this.turnos = await this.supabase.getTurnos();
     this.cdr.detectChanges();
+  }
+
+  esDiaCerrado(dia: Date): boolean {
+    const fechaStr = dia.toLocaleDateString('en-CA');
+    return this.diasCerrados.some(d => {
+      const desde = d.fecha;
+      const hasta = d.fecha_hasta || d.fecha;
+      return fechaStr >= desde && fechaStr <= hasta;
+    });
   }
 
   // Altura total del contenedor en px
@@ -308,6 +329,7 @@ export class AgendaComponent implements OnInit {
     this.errorEditarTurno = '';
     if (!this.nuevaFecha || !this.nuevaHora || !this.nuevoServicioId) {
       this.errorEditarTurno = 'Completá todos los campos.';
+      this.cdr.detectChanges();
       return;
     }
     const servicio = this.nuevoServicio;
@@ -322,6 +344,7 @@ export class AgendaComponent implements OnInit {
 
     if (sinCambios) {
       this.errorEditarTurno = 'No realizaste ningún cambio.';
+      this.cdr.detectChanges();
       return;
     }
     */
@@ -336,6 +359,7 @@ export class AgendaComponent implements OnInit {
       if (turnoOriginalFecha > new Date()) {
         if (fechaHora <= new Date()) {
           this.errorEditarTurno = 'La nueva fecha y hora deben ser en el futuro.';
+          this.cdr.detectChanges();
           return;
         }
       }
@@ -399,16 +423,19 @@ export class AgendaComponent implements OnInit {
   }
 
   async iniciarCancelacion() {
-    if (!this.turnoSeleccionado) return;
-    await this.supabase.updateEstadoTurno(this.turnoSeleccionado.id, 'cancelado');
-    if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?'))
-    {
-      this.motivoCancelacion = '';
-      this.mostrarPopupCancelacion = true;
-    } else
-    {
-      this.mostrarPopupCancelacion = false;
-      this.cerrarPopupCancelacion()
+    if (this.turnoSeleccionado) {
+      await this.supabase.updateEstadoTurno(this.turnoSeleccionado.id, 'cancelado');
+      if (this.turnoSeleccionado.cliente_telefono &&
+          confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?')) {
+        this.motivoCancelacion = '';
+        this.mostrarPopupCancelacion = true;
+      } else {
+        this.cerrarPopupCancelacion();
+        await this.cargarTurnos();
+      }
+    } else {
+      this.cerrarPopupCancelacion();
+      await this.cargarTurnos();
     }
     this.cdr.detectChanges();
   }
@@ -419,7 +446,7 @@ export class AgendaComponent implements OnInit {
     try {
       const fecha = this.formatearFechaStr(this.turnoSeleccionado.fecha);
       const hora = this.formatearHora(this.turnoSeleccionado.hora_inicio || this.turnoSeleccionado.hora);
-      const mensaje = `Estimado cliente:\n\n📆 El turno del día *${fecha}* a las *${hora}* hs ha sido *cancelado* debido a ${this.motivoCancelacion}.\nLamentamos los inconvenientes causados.😔\n_(Si deseas reservar otro turno escribí *2* o *reservar*)_\n\nAtte. ${this.nombreNegocio}`;
+      const mensaje = `Estimado cliente:\n\n📆 El turno del día *${fecha}* a las *${hora}* hs ha sido *cancelado* debido a ${this.motivoCancelacion}.\nLamentamos los inconvenientes causados.😔\n_(Si deseas reservar otro turno escribí *2* o *reservar*)_\n\nAtte. *${this.nombreNegocio}*`;
       await fetch('https://primary-production-4f919.up.railway.app/webhook/cancelacion-turno', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -437,17 +464,20 @@ export class AgendaComponent implements OnInit {
     this.mostrarPopupCancelacion = false;
     this.cerrarPopup();
     await this.cargarTurnos();
+    this.cdr.detectChanges();
   }
 
   cerrarPopupCancelacion() {
     this.mostrarPopupCancelacion = false;
     this.cerrarPopup();
-    this.cargarTurnos();
   }
 
   async iniciarNotificacionPostergacion(nuevaFecha: string, nuevaHora: string, nuevoServicio: string) {
-    if (!this.turnoSeleccionado?.cliente_telefono) return;
-    if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?')) {
+    const telefonoCliente = this.turnoSeleccionado?.cliente_telefono;
+    if (!telefonoCliente) {
+      this.cerrarPopup();
+      await this.cargarTurnos();
+    } else if (confirm('¿Querés enviarle un mensaje de WhatsApp al cliente?')) {
       this.motivoPostergacion = '';
       this._nuevaFechaPostergacion = nuevaFecha;
       this._nuevaHoraPostergacion = nuevaHora;
@@ -464,7 +494,7 @@ export class AgendaComponent implements OnInit {
     this.enviandoMensajePostergacion = true;
     try {
       const fecha = this.formatearFechaStr(this._nuevaFechaPostergacion);
-            const mensaje = `Estimado cliente:\n\n📆 Tu turno ha sido *reprogramado* para el día *${fecha}* a las *${this._nuevaHoraPostergacion}* hs (para un: *${this._nuevoServicioPostergacion}*).${this.motivoPostergacion ? this.motivoPostergacion + '.' : ''}\nLamentamos los inconvenientes causados.😔\n_(Si deseas consultar/cancelar tus turnos escribí *3* o *turnos*)_\n\nAtte. ${this.nombreNegocio}`;
+            const mensaje = `Estimado cliente:\n\n📆 Tu turno ha sido *reprogramado* para el día *${fecha}* a las *${this._nuevaHoraPostergacion}* hs (para un: *${this._nuevoServicioPostergacion}*).${this.motivoPostergacion ? this.motivoPostergacion + '.' : ''}\nLamentamos los inconvenientes causados.😔\n_(Si deseas consultar/cancelar tus turnos escribí *3* o *turnos*)_\n\nAtte. *${this.nombreNegocio}*`;
       await fetch('https://primary-production-4f919.up.railway.app/webhook/cancelacion-turno', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -479,14 +509,13 @@ export class AgendaComponent implements OnInit {
       console.error('Error enviando mensaje:', e);
     }
     this.enviandoMensajePostergacion = false;
-    this.mostrarPopupPostergacion = false;
     this.cerrarPopupPostergacion();
     await this.cargarTurnos();
+    this.cdr.detectChanges();
   }
 
   cerrarPopupPostergacion() {
     this.mostrarPopupPostergacion = false;
     this.cerrarPopup();
-    this.cargarTurnos();
   }
  }

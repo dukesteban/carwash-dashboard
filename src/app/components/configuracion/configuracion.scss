@@ -147,6 +147,11 @@
   &:hover { background: #f1f5f9; }
 }
 
+.tabla-horarios tr.vencido td {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
 //SERVICIOS
 .servicios-page {
   padding: 24px;
