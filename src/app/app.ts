@@ -20,9 +20,9 @@ export class App implements OnInit {
     private router: Router
   ) {}
 
-  private rutas = ['/', '/agenda', '/ganancias', '/clientes', '/configuracion'];
-  private touchStartX = 0;
-  private touchStartY = 0;
+  //private rutas = ['/', '/agenda', '/ganancias', '/clientes', '/configuracion'];
+  //private touchStartX = 0;
+  //private touchStartY = 0;
 
   async ngOnInit() {
     const config = await this.supabase.getConfiguracion();
@@ -41,6 +41,8 @@ export class App implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // DESPLAZAR LATERALMENTE
+  /*
   @HostListener('touchstart', ['$event'])
   onTouchStart(e: TouchEvent) {
     this.touchStartX = e.touches[0].clientX;
@@ -68,4 +70,5 @@ export class App implements OnInit {
       this.router.navigate([this.rutas[idx - 1]]);
     }
   }
+  */
 }
